@@ -1,8 +1,13 @@
+import { users } from "../../controllers/auth/authController";
+
 const registerUser = (username: string, password: string) => {
-    return {
+    const user = {
         username,
         password
     }
+
+    users.push(user);
+    return user;
 }
 
 export const authService = {
