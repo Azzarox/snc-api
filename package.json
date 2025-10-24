@@ -6,7 +6,8 @@
 	"author": "",
 	"main": "index.js",
 	"scripts": {
-		"start": "nodemon src/server.ts",
+		"dev": "nodemon src/server.ts",
+		"start": "tsc -b && node dist/server.js",
 		"lint": "eslint . --ext .ts --fix",
 		"build": "tsc -b",
 		"prettier:check": "prettier . --check",
@@ -15,11 +16,14 @@
 	"dependencies": {
 		"@koa/bodyparser": "^6.0.0",
 		"@koa/router": "^14.0.0",
+		"dotenv": "^17.2.3",
 		"koa": "^3.0.1",
-		"koa-json": "^2.0.2"
+		"koa-json": "^2.0.2",
+		"zod": "^4.1.12"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.37.0",
+		"@types/dotenv": "^6.1.1",
 		"@types/jest": "^30.0.0",
 		"@types/koa": "^3.0.0",
 		"@types/koa__router": "^12.0.4",
