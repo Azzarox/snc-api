@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import { Context } from 'koa';
-import { authController } from '../../controllers/auth/authController';
+import { authController, users } from '../../controllers/auth/authController';
 
 export const authRouter = new Router({
     prefix: '/auth'
@@ -8,3 +8,7 @@ export const authRouter = new Router({
 
 authRouter.post('/login', (ctx: Context) => {})
 authRouter.post('/register', authController.registerUser)
+authRouter.get('/', (ctx: Context) => {
+    ctx.body = users;
+    ctx.status = 201;
+})
