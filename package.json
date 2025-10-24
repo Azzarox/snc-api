@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .ts --fix",
     "build": "tsc -b",
     "prettier:check": "prettier . --check",
-    "prettier:fix": "prettier . --write"
+    "prettier:format": "prettier . --write"
   },
   "dependencies": {
     "@koa/bodyparser": "^6.0.0",
