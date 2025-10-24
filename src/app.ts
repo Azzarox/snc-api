@@ -4,12 +4,12 @@ import { bodyParser } from '@koa/bodyparser';
 import KoaRouter from '@koa/router';
 
 const app = new Koa();
-const router = new KoaRouter(); 
+const router = new KoaRouter();
 
 router.get('/hello', (ctx: Context) => {
-    ctx.body = {
-        "msg": 'hello'
-    };
+	ctx.body = {
+		msg: 'hello',
+	};
 });
 
 app.use(json());
