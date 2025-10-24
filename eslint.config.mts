@@ -1,9 +1,13 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import { defineConfig } from 'eslint/config';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import unusedImports from "eslint-plugin-unused-imports";
+import pluginPrettier from 'eslint-plugin-prettier';
+
+
 export default defineConfig([
+  globalIgnores(['dist', 'node_modules']),
   // JS rules
   js.configs.recommended,
 
@@ -25,11 +29,9 @@ export default defineConfig([
     plugins: {
       '@typescript-eslint': tseslint.plugin,
       "unused-imports": unusedImports,
+      prettier: pluginPrettier,
     },
     rules: {
-      'semi': ['error', 'always'],
-      'indent': ['error', 4, { SwitchCase: 1 }],
-      'quotes': ['error', 'single'],
       'no-console': 'off',
       'no-unused-vars': 'off',
       "unused-imports/no-unused-imports": "error",
@@ -45,10 +47,7 @@ export default defineConfig([
       ,
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': 'off',
+      'prettier/prettier': ['error', {}, { usePrettierrc: true }],
     },
-  },
-
-  {
-    ignores: ['dist/', 'node_modules/'],
   },
 ]);
