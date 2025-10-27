@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import { isValidationError } from "../common/guards/isValidationError";
 import { ErrorResponse, FailResponse } from "../common/response/Response";
 import { hasErrorMessage } from "../common/guards/hasErrorMessage";
+import { loggerService } from "../services/logger/loggerService";
 
 const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 	try {
@@ -20,13 +21,14 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 		}
 		else {
 			const message = hasErrorMessage(err) ? err.message : 'Oops! Something went wrong!';
-			const response = new FailResponse(StatusCodes.INTERNAL_SERVER_ERROR, message) 
+			const response = new FailResponse(StatusCodes.INTERNAL_SERVER_ERROR, message)
 
-            ctx.status = StatusCodes.INTERNAL_SERVER_ERROR 
+			ctx.status = StatusCodes.INTERNAL_SERVER_ERROR
 			ctx.body = response;
 		}
-		
-		ctx.app.emit('error', err, ctx);
+
+		loggerService.logError(ctx, err);
+		// ctx.app.emit('error', err, ctx);
 	}
 }
 
