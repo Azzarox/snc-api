@@ -1,13 +1,10 @@
 import { StatusCodes } from "http-status-codes";
+import { Errors } from "./shared/types";
 
-type CustomError = {
-    message: string,
-    data?: any;
-}
 
 export class CustomHttpError extends Error {
-    
-    constructor(public status: StatusCodes, public message: string) {
+    constructor(public status: StatusCodes, public message: string, public errors?: Errors) {
         super();
+        Object.setPrototypeOf(this, new.target.prototype);
     }
 }

@@ -1,7 +1,7 @@
-import { StatusCodes } from "http-status-codes"
 import { Context, Next } from "koa"
 import z, { ZodError, ZodType } from "zod"
 import { paramsSchema } from "../schemas/common/paramsSchema"
+import { ValidationError } from "../common/errors/ValidationError"
 
 type Schema = {
     body?: ZodType<any>
@@ -26,11 +26,8 @@ export const validate = (schema: Schema) => async (ctx: Context, next: Next) => 
         await next();
     } catch (err) {
         if (err instanceof ZodError) {
-            ctx.status = StatusCodes.BAD_REQUEST;
-            ctx.body = {
-                message: "Validation error",
-                errors: z.flattenError(err)
-            };
+            const errors = z.flattenError(err).fieldErrors; // NOTE: It has also form errors ...
+            throw new ValidationError(errors)
         } else {
             throw err;
         }
