@@ -15,11 +15,13 @@ export default defineConfig([
 
 	{
 		files: ['**/*.{js,ts,cjs,mjs}'],
+		ignores: ['jest.config.ts'], 
 		languageOptions: {
 			parser: tseslint.parser,
 			parserOptions: {
 				ecmaVersion: 'latest',
 				sourceType: 'module',
+				project: './tsconfig.json',
 			},
 			globals: {
 				...globals.node,
@@ -47,7 +49,14 @@ export default defineConfig([
 				'warn',
 				{ argsIgnorePattern: '^_' },
 			],
+			'@typescript-eslint/no-explicit-any': [
+				'warn',
+			],
 			'@typescript-eslint/explicit-function-return-type': 'off',
+			'@typescript-eslint/no-floating-promises': 'error',
+			'@typescript-eslint/require-await': 'warn',
+			'@typescript-eslint/no-misused-promises': 'error',
+
 			'prettier/prettier': ['error', {}, { usePrettierrc: true }],
 		},
 	},
