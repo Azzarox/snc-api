@@ -6,8 +6,8 @@ export class ValidationError extends Error {
 
     constructor(public errors: Errors) {
         super();
-        this.status = StatusCodes.BAD_REQUEST,
-        this.message = "Validation Error",
+        this.status = StatusCodes.BAD_REQUEST;
+        this.message = "Validation Error";
         this.errors = errors;
 
         Object.setPrototypeOf(this, new.target.prototype);
