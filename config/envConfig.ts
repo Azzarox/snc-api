@@ -6,12 +6,8 @@ const envPath = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
 dotenv.config({ path: envPath });
 
 const envSchema = z.object({
-	PORT: z
-		.string()
-		.min(
-			4,
-			'.env Varaiable PORT is required and must have atleast 4 digits'
-		),
+	PORT: z.string().min(4, '.env variable PORT is required and must have atleast 4 digits'),
+	SALT: z.coerce.number().max(14, '.env variable SALT is required and must be at most 14')
 });
 
 type ConfigData = z.infer<typeof envSchema>;
@@ -24,4 +20,5 @@ if (!env.success) {
 
 export const envConfig: ConfigData = {
 	PORT: env.data.PORT,
+	SALT: env.data.SALT,
 };
