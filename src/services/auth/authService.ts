@@ -3,6 +3,7 @@ import { CustomHttpError } from "../../common/errors/CustomHttpError";
 import { users } from "../../controllers/auth/authController";
 import * as bcrypt from 'bcryptjs';
 import { envConfig } from "../../../config/envConfig";
+import { createToken } from "../../utils/createToken";
 
 const registerUser = async (username: string, password: string) => {
     if (users.find(u => u.username === username)) {
@@ -17,6 +18,7 @@ const registerUser = async (username: string, password: string) => {
     }
 
     users.push(user);
+    
     return user;
 
 }
@@ -32,10 +34,12 @@ const loginUser = async (username: string, password: string) => {
         throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials')
     }
     
+    const payload = { username: user.username };
+    const accessToken = createToken(payload);
+
     return {
-        username: user.username,
-        password: user.password,
-    }
+        accessToken
+    };
 }
 
 export const authService = {

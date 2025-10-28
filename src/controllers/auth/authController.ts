@@ -9,7 +9,7 @@ export const users: { username: string, password: string }[] = [];
 
 const registerUser = async (ctx: Context) => {
     const { username, password } = ctx.request.body as RegisterPayload;
-    const user = authService.registerUser(username, password);
+    const user = await authService.registerUser(username, password);
 
     const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully created user!', user)
     ctx.status = response.status
