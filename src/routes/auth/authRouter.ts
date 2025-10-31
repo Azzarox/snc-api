@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import { Context } from 'koa';
-import { authController, users } from '../../controllers/auth/authController';
+import { authController } from '../../controllers/auth/authController';
 import { validate } from '../../middlewares/validationMiddleware';
 import { registerSchema } from '../../schemas/auth/registerSchema';
 import { authService } from '../../services/auth/authService';
