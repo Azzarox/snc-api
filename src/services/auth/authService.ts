@@ -4,13 +4,11 @@ import * as bcrypt from 'bcryptjs';
 import { envConfig } from '../../../config/envConfig';
 
 const users: { username: string; password: string }[] = [];
+import { createToken } from '../../utils/createToken';
 
 const registerUser = async (username: string, password: string) => {
 	if (users.find((u) => u.username === username)) {
-		throw new CustomHttpError(
-			StatusCodes.BAD_REQUEST,
-			'User already exists!'
-		);
+		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'User already exists!');
 	}
 
 	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
@@ -21,6 +19,7 @@ const registerUser = async (username: string, password: string) => {
 	};
 
 	users.push(user);
+
 	return user;
 };
 
@@ -32,15 +31,14 @@ const loginUser = async (username: string, password: string) => {
 
 	const isValid = await bcrypt.compare(password, user.password);
 	if (!isValid) {
-		throw new CustomHttpError(
-			StatusCodes.UNAUTHORIZED,
-			'Invalid Credentials'
-		);
+		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials');
 	}
 
+	const payload = { username: user.username };
+	const accessToken = createToken(payload);
+
 	return {
-		username: user.username,
-		password: user.password,
+		accessToken,
 	};
 };
 
