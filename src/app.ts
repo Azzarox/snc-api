@@ -2,7 +2,7 @@ import Koa, { Context } from 'koa';
 import json from 'koa-json';
 import { bodyParser } from '@koa/bodyparser';
 import KoaRouter from '@koa/router';
-import mainRouter from './routes/router'
+import mainRouter from './routes/router';
 import errorHandlerMiddleware from './middlewares/errorHandlerMiddleware';
 const app = new Koa();
 const router = new KoaRouter();

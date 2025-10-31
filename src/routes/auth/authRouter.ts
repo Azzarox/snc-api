@@ -6,13 +6,16 @@ import { registerSchema } from '../../schemas/auth/registerSchema';
 import { authService } from '../../services/auth/authService';
 
 export const authRouter = new Router({
-    prefix: '/auth'
+	prefix: '/auth',
 });
 
-
-authRouter.post('/login', (ctx: Context) => {})
-authRouter.post('/register', validate({ body: registerSchema }), authController.registerUser)
+authRouter.post('/login', (ctx: Context) => {});
+authRouter.post(
+	'/register',
+	validate({ body: registerSchema }),
+	authController.registerUser
+);
 authRouter.get('/', (ctx: Context) => {
-    ctx.body = authService.users;
-    ctx.status = 201;
-})
+	ctx.body = authService.users;
+	ctx.status = 201;
+});
