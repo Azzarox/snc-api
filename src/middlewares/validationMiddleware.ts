@@ -5,10 +5,10 @@ import { ValidationError } from "../common/errors/ValidationError"
 import { Middleware } from "@koa/router"
 
 type Schema = {
-    body?: ZodType<any>
-    params?: ZodType<any>
-    query?: ZodType<any>
-}
+	body?: ZodType<any>;
+	params?: ZodType<any>;
+	query?: ZodType<any>;
+};
 
 type InferSchema<S extends Schema> = {
     body: S['body'] extends ZodType<infer B> ? B : never

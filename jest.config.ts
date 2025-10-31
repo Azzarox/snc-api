@@ -8,11 +8,7 @@ const config: Config = {
 	// setupFilesAfterEnv: ["<rootDir>/tests/setup/setup.ts"],
 	// globalSetup: '<rootDir>/tests/setup/globalSetup.ts',
 
-	testMatch: [
-		'<rootDir>/src/**/*.spec.ts',
-		'<rootDir>/src/**/*.test.ts',
-		'<rootDir>/tests/**/*.(spec|test).ts',
-	],
+	testMatch: ['<rootDir>/src/**/*.spec.ts', '<rootDir>/src/**/*.test.ts', '<rootDir>/tests/**/*.(spec|test).ts'],
 	// collectCoverage: true,
 	// collectCoverageFrom: [
 	//     'src/**/*.{ts,tsx}',
