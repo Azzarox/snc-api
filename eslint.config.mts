@@ -15,7 +15,7 @@ export default defineConfig([
 
 	{
 		files: ['**/*.{js,ts,cjs,mjs}'],
-		ignores: ['jest.config.ts'], 
+		ignores: ['jest.config.ts'],
 		languageOptions: {
 			parser: tseslint.parser,
 			parserOptions: {
@@ -49,9 +49,7 @@ export default defineConfig([
 				'warn',
 				{ argsIgnorePattern: '^_' },
 			],
-			'@typescript-eslint/no-explicit-any': [
-				'warn',
-			],
+			'@typescript-eslint/no-explicit-any': ['warn'],
 			'@typescript-eslint/explicit-function-return-type': 'off',
 			'@typescript-eslint/no-floating-promises': 'error',
 			'@typescript-eslint/require-await': 'warn',
