@@ -18,7 +18,7 @@ type InferSchema<S extends Schema> = {
 
 type BaseContext = ParameterizedContext<DefaultState, DefaultContext>
 
-export type ValidatedContext<S extends Schema> = {
+type SchemaValidatedContext<S extends Schema> = {
     [K in keyof BaseContext]: K extends 'request' | 'params' | 'query'
     ? unknown
     : BaseContext[K]
@@ -30,8 +30,30 @@ export type ValidatedContext<S extends Schema> = {
     query: InferSchema<S>['query']
 }
 
-export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, ValidatedContext<S>> =>
-    async (ctx: ValidatedContext<S>, next: Next) => {
+/**
+ * @description
+ * Using: Pass either the inferred type like "RegisterPayload" or the schema ex: "typeof registerSchema"
+ * ex: ValidatedContext<RegisterPayload>
+ * ex: ValidatedContext<never, typeof registerSchema>
+ */
+export type ValidatedContext<
+    TBody = never,
+    TParams = never,
+    TQuery = never
+> = SchemaValidatedContext<{
+    body: TBody extends ZodType<infer B> 
+        ? TBody 
+        : (TBody extends never ? never : ZodType<TBody>)
+    params: TParams extends ZodType<infer P> 
+        ? TParams 
+        : (TParams extends never ? never : ZodType<TParams>)
+    query: TQuery extends ZodType<infer Q> 
+        ? TQuery 
+        : (TQuery extends never ? never : ZodType<TQuery>)
+}>
+
+export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, SchemaValidatedContext<S>> =>
+    async (ctx: SchemaValidatedContext<S>, next: Next) => {
         try {
             if (schema.body) {
                 ctx.request.body = schema.body.parse(ctx.request.body);
