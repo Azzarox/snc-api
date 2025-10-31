@@ -1,14 +1,15 @@
 import Router from '@koa/router';
 import { Context } from 'koa';
-import { authController, users } from '../../controllers/auth/authController';
+import { authController } from '../../controllers/auth/authController';
 import { validate } from '../../middlewares/validationMiddleware';
 import { loginSchema, registerSchema } from '../../schemas/auth/registerSchema';
+import { authService } from '../../services/auth/authService';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 
 export const authRouter = new Router({
-    prefix: '/auth'
+	prefix: '/auth',
 });
 
 authRouter.post('/login', validate({body: loginSchema}), authController.loginUser)
@@ -21,5 +22,5 @@ authRouter.get('/me', authMiddleware, (ctx: Context) => {
 })
 
 authRouter.get('/users', authMiddleware, (ctx: Context) => {
-    ctx.body = new SuccessResponse(StatusCodes.OK, null, users)
+    ctx.body = new SuccessResponse(StatusCodes.OK, null, authService.users)
 })

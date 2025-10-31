@@ -1,13 +1,12 @@
-import { StatusCodes } from "http-status-codes";
-import { Errors } from "../errors/shared/types";
-
+import { StatusCodes } from 'http-status-codes';
+import { Errors } from '../errors/shared/types';
 
 class GenericResponse {
-    public success: boolean;
+	public success: boolean;
 
-    constructor(public status: StatusCodes) {
-        this.success = status >= 200 && status < 300;
-    }
+	constructor(public status: StatusCodes) {
+		this.success = status >= 200 && status < 300;
+	}
 }
 
 export class SuccessResponse<T> extends GenericResponse {
