@@ -1,7 +1,8 @@
-import { Context, Next } from "koa"
+import { Context, DefaultContext, DefaultState, Next, ParameterizedContext } from "koa"
 import z, { ZodError, ZodType } from "zod"
 import { paramsSchema } from "../schemas/common/paramsSchema"
 import { ValidationError } from "../common/errors/ValidationError"
+import { Middleware } from "@koa/router"
 
 type Schema = {
     body?: ZodType<any>
@@ -9,29 +10,47 @@ type Schema = {
     query?: ZodType<any>
 }
 
-export const validate = (schema: Schema) => async (ctx: Context, next: Next) => {
-    try {
-        if (schema.body) {
-            ctx.request.body = schema.body.parse(ctx.request.body);
-        }
+// Extract the inferred types from the schema
+type InferSchema<S extends Schema> = {
+    body: S['body'] extends ZodType<infer B> ? B : never
+    params: S['params'] extends ZodType<infer P> ? P : never
+    query: S['query'] extends ZodType<infer Q> ? Q : never
+}
 
-        if (schema.params) {
-            ctx.params = schema.params.parse(ctx.params);
+export type ValidatedContext<S extends Schema> = ParameterizedContext<
+    DefaultState,
+    DefaultContext & {
+        request: {
+            body: InferSchema<S>['body']
         }
+        params: InferSchema<S>['params']
+        query: InferSchema<S>['query']
+    }
+>
+export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, ValidatedContext<S>> => 
+    async (ctx:  ValidatedContext<S>, next: Next) => {
+        try {
+            if (schema.body) {
+                ctx.request.body = schema.body.parse(ctx.request.body);
+            }
 
-        if (schema.query) {
-            ctx.request.query = schema.query.parse(ctx.request.query);
-        }
+            if (schema.params) {
+                ctx.params = schema.params.parse(ctx.params);
+            }
 
-        await next();
-    } catch (err) {
-        if (err instanceof ZodError) {
-            const errors = z.flattenError(err).fieldErrors; // NOTE: It has also form errors ...
-            throw new ValidationError(errors)
-        } else {
-            throw err;
+            if (schema.query) {
+                ctx.request.query = schema.query.parse(ctx.request.query);
+            }
+
+            await next();
+        } catch (err) {
+            if (err instanceof ZodError) {
+                const errors = z.flattenError(err).fieldErrors;
+                throw new ValidationError(errors)
+            } else {
+                throw err;
+            }
         }
     }
-}
 
 export const validateIDParams = validate({ params: paramsSchema });
