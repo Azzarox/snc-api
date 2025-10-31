@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
-import { users } from '../../controllers/auth/authController';
+
+const users: { username: string; password: string }[] = [];
 
 const registerUser = (username: string, password: string) => {
 	if (users.find((u) => u.username === username)) {
@@ -20,5 +21,6 @@ const registerUser = (username: string, password: string) => {
 };
 
 export const authService = {
+	users,
 	registerUser,
 };
