@@ -15,26 +15,12 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 			ctx.status = response.status;
 			ctx.body = response;
 		} else if (isValidationError(err)) {
-			const response = new ErrorResponse(
-				err.status,
-				err.message,
-				err.errors
-			);
-			const response = new ErrorResponse(
-				err.status,
-				err.message,
-				err.errors
-			);
+			const response = new ErrorResponse(err.status, err.message, err.errors);
 			ctx.status = response.status;
 			ctx.body = response;
 		} else {
-			const message = hasErrorMessage(err)
-				? err.message
-				: 'Oops! Something went wrong!';
-			const response = new FailResponse(
-				StatusCodes.INTERNAL_SERVER_ERROR,
-				message
-			);
+			const message = hasErrorMessage(err) ? err.message : 'Oops! Something went wrong!';
+			const response = new FailResponse(StatusCodes.INTERNAL_SERVER_ERROR, message);
 
 			ctx.status = StatusCodes.INTERNAL_SERVER_ERROR;
 			ctx.body = response;
@@ -44,7 +30,5 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 		// ctx.app.emit('error', err, ctx);
 	}
 };
-};
 
 export default errorHandlerMiddleware;
-
