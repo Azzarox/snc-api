@@ -4,7 +4,6 @@ import { RegisterPayload } from "../../schemas/auth/registerSchema";
 import { SuccessResponse } from "../../common/response/Response";
 import { StatusCodes } from "http-status-codes";
 
-export const users: { username: string, password: string }[] = [];
 
 
 const registerUser = (ctx: Context) => {
