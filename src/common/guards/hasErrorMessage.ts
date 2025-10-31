@@ -1,3 +1,3 @@
 // NOTE: If somehting is object and has 'message' it will be "Error" type ...
 export const hasErrorMessage = (err: unknown): err is { message: string } =>
-  !!err && typeof err === "object" && "message" in err;
+	!!err && typeof err === 'object' && 'message' in err;
