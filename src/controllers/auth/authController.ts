@@ -1,4 +1,4 @@
-import { Context, ParameterizedContext } from "koa";
+import { Context, DefaultContext, ParameterizedContext } from "koa";
 import { authService } from "../../services/auth/authService";
 import { LoginPayload, RegisterPayload, registerSchema } from "../../schemas/auth/registerSchema";
 import { SuccessResponse } from "../../common/response/Response";
@@ -7,9 +7,8 @@ import { ValidatedContext } from "../../middlewares/validationMiddleware";
 
 export const users: { username: string, password: string }[] = [];
 
-const registerUser = async (ctx: ValidatedContext<{ body: typeof registerSchema, query: typeof registerSchema}>) => {
+const registerUser = async (ctx: ValidatedContext<{ body: typeof registerSchema }>) => {
     const { username, password } = ctx.request.body;
-
     const user = await authService.registerUser(username, password);
 
     const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully created user!', user)

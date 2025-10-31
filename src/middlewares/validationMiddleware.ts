@@ -18,20 +18,20 @@ type InferSchema<S extends Schema> = {
 
 type BaseContext = ParameterizedContext<DefaultState, DefaultContext>
 
-type OmitContextProperties<T extends keyof BaseContext> = Omit<BaseContext, T>
-type OmitSpecificContextProperties<K extends keyof BaseContext, T extends keyof BaseContext> = Omit<BaseContext[K], T>
-
-export type ValidatedContext<S extends Schema> =OmitContextProperties<'request' | 'params' | 'query'> & {
-    request: OmitSpecificContextProperties<'request', 'body'> & {
+export type ValidatedContext<S extends Schema> = {
+    [K in keyof BaseContext]: K extends 'request' | 'params' | 'query'
+    ? unknown
+    : BaseContext[K]
+} & {
+    request: Omit<BaseContext['request'], 'body'> & {
         body: InferSchema<S>['body']
     }
-    params: InferSchema<S>['params'],
-    query: InferSchema<S>['query'],
+    params: InferSchema<S>['params']
+    query: InferSchema<S>['query']
 }
 
-
-export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, ValidatedContext<S>> => 
-    async (ctx:  ValidatedContext<S>, next: Next) => {
+export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, ValidatedContext<S>> =>
+    async (ctx: ValidatedContext<S>, next: Next) => {
         try {
             if (schema.body) {
                 ctx.request.body = schema.body.parse(ctx.request.body);
