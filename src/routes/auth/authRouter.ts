@@ -5,13 +5,20 @@ import { validate } from '../../middlewares/validationMiddleware';
 import { loginSchema, registerSchema } from '../../schemas/auth/registerSchema';
 
 export const authRouter = new Router({
-    prefix: '/auth'
+	prefix: '/auth',
 });
 
-
-authRouter.post('/login', validate({body: loginSchema}), authController.loginUser)
-authRouter.post('/register', validate({ body: registerSchema }), authController.registerUser)
+authRouter.post(
+	'/login',
+	validate({ body: loginSchema }),
+	authController.loginUser
+);
+authRouter.post(
+	'/register',
+	validate({ body: registerSchema }),
+	authController.registerUser
+);
 authRouter.get('/', (ctx: Context) => {
-    ctx.body = users;
-    ctx.status = 201;
-})
+	ctx.body = users;
+	ctx.status = 201;
+});
