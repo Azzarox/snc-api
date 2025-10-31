@@ -10,30 +10,19 @@ class GenericResponse {
 }
 
 export class SuccessResponse<T> extends GenericResponse {
-	constructor(
-		public status: StatusCodes,
-		public message: string,
-		public data: T
-	) {
-		super(status);
-	}
+    constructor(public status: StatusCodes, public message: string | null, public data: T) {
+        super(status);
+    }
 }
 
 export class FailResponse extends GenericResponse {
-	constructor(
-		public status: StatusCodes,
-		public message: string
-	) {
-		super(status);
-	}
+    constructor(public status: StatusCodes, public message: string | null) {
+        super(status);
+    }
 }
 
 export class ErrorResponse extends GenericResponse {
-	constructor(
-		public status: StatusCodes,
-		public message: string,
-		public errors: Errors
-	) {
-		super(status);
-	}
+  constructor(public status: StatusCodes, public message: string | null, public errors: Errors) {
+    super(status);
+  }
 }

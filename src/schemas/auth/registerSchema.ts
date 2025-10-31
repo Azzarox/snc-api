@@ -6,3 +6,6 @@ export const registerSchema = z.object({
 });
 
 export type RegisterPayload = z.infer<typeof registerSchema>;
+
+export const loginSchema = registerSchema;
+export type LoginPayload = z.infer<typeof loginSchema>;

@@ -20,6 +20,11 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 				err.message,
 				err.errors
 			);
+			const response = new ErrorResponse(
+				err.status,
+				err.message,
+				err.errors
+			);
 			ctx.status = response.status;
 			ctx.body = response;
 		} else {
@@ -39,5 +44,7 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 		// ctx.app.emit('error', err, ctx);
 	}
 };
+};
 
 export default errorHandlerMiddleware;
+
