@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { isValidationError } from '../common/guards/isValidationError';
 import { ErrorResponse, FailResponse } from '../common/response/Response';
 import { hasErrorMessage } from '../common/guards/hasErrorMessage';
+import { loggerService } from '../services/logger/loggerService';
 
 const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 	try {
@@ -14,6 +15,11 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 			ctx.status = response.status;
 			ctx.body = response;
 		} else if (isValidationError(err)) {
+			const response = new ErrorResponse(
+				err.status,
+				err.message,
+				err.errors
+			);
 			const response = new ErrorResponse(
 				err.status,
 				err.message,
@@ -34,8 +40,11 @@ const errorHandlerMiddleware = async (ctx: Context, next: Next) => {
 			ctx.body = response;
 		}
 
-		ctx.app.emit('error', err, ctx);
+		loggerService.logError(ctx, err);
+		// ctx.app.emit('error', err, ctx);
 	}
+};
 };
 
 export default errorHandlerMiddleware;
+
