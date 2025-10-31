@@ -1,4 +1,4 @@
-import { Context, DefaultContext, DefaultState, Next, ParameterizedContext } from "koa"
+import { DefaultContext, DefaultContextExtends, DefaultState, Next, ParameterizedContext } from "koa"
 import z, { ZodError, ZodType } from "zod"
 import { paramsSchema } from "../schemas/common/paramsSchema"
 import { ValidationError } from "../common/errors/ValidationError"
@@ -10,23 +10,26 @@ type Schema = {
     query?: ZodType<any>
 }
 
-// Extract the inferred types from the schema
 type InferSchema<S extends Schema> = {
     body: S['body'] extends ZodType<infer B> ? B : never
     params: S['params'] extends ZodType<infer P> ? P : never
     query: S['query'] extends ZodType<infer Q> ? Q : never
 }
 
-export type ValidatedContext<S extends Schema> = ParameterizedContext<
-    DefaultState,
-    DefaultContext & {
-        request: {
-            body: InferSchema<S>['body']
-        }
-        params: InferSchema<S>['params']
-        query: InferSchema<S>['query']
+type BaseContext = ParameterizedContext<DefaultState, DefaultContext>
+
+type OmitContextProperties<T extends keyof BaseContext> = Omit<BaseContext, T>
+type OmitSpecificContextProperties<K extends keyof BaseContext, T extends keyof BaseContext> = Omit<BaseContext[K], T>
+
+export type ValidatedContext<S extends Schema> =OmitContextProperties<'request' | 'params' | 'query'> & {
+    request: OmitSpecificContextProperties<'request', 'body'> & {
+        body: InferSchema<S>['body']
     }
->
+    params: InferSchema<S>['params'],
+    query: InferSchema<S>['query'],
+}
+
+
 export const validate = <S extends Schema>(schema: S): Middleware<DefaultState, ValidatedContext<S>> => 
     async (ctx:  ValidatedContext<S>, next: Next) => {
         try {
