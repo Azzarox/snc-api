@@ -15,5 +15,8 @@ const setup = {
         database: envConfig.POSTGRES_DB,
     }
 };
+
+export const connectDB = () => db.raw("SELECT 1")
+
 export const knexSetup = setup;
 export const db = knex(setup);
