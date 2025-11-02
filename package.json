@@ -14,7 +14,7 @@
 		"prettier:format": "prettier . --write",
 		"migrations:make": "knex migrate:make",
 		"migrations": "knex migrate:latest",
-		"seeds:make": "knex seed:make",
+		"seeds:make": "knex seed:make -x ts --timestamp-filename-prefix",
 		"seeds": "knex seed:run"
 	},
 	"dependencies": {

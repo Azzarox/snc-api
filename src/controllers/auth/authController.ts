@@ -5,8 +5,6 @@ import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
 
-export const users: { username: string; password: string }[] = [];
-
 const registerUser = async (ctx: ValidatedContext<RegisterPayload>) => {
 	const { username, password } = ctx.request.body;
 
@@ -30,7 +28,7 @@ const getUsers = async (ctx: Context) => {
 }
 
 const getCurrentUser = (ctx: Context) => {
-	const response = new SuccessResponse(StatusCodes.OK, null, ctx.state.user); //TODO: add ctx.state.user type later
+	const response = new SuccessResponse(StatusCodes.OK, null, ctx.state.user);
 	ctx.body = response;
 	ctx.status = response.status;
 }
