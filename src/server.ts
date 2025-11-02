@@ -1,6 +1,6 @@
 import app from './app';
 import { envConfig } from '../config/envConfig';
-import { connectDB, db } from '../config/knexConfig';
+import { connectDB } from '../config/knexConfig';
 import { pinoLogger } from './config/loggerConfig';
 
 connectDB()

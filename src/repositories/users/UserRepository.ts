@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import {  KnexRepository, SelectColumns } from '../KnexRepository';
+import { KnexRepository, SelectColumns } from '../KnexRepository';
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 export class UserRepository extends KnexRepository<UserEntity> {
 	protected tableName = 'users';
@@ -9,6 +9,6 @@ export class UserRepository extends KnexRepository<UserEntity> {
 	}
 
 	async getByUsername(username: string, select: SelectColumns<UserEntity> = '*'): Promise<UserEntity | null> {
-		return super.findOneBy({ username }, select)
+		return super.findOneBy({ username }, select);
 	}
 }

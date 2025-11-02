@@ -1,5 +1,5 @@
-import { db } from "../../config/knexConfig";
-import { UserRepository } from "./users/UserRepository";
+import { db } from '../../config/knexConfig';
+import { UserRepository } from './users/UserRepository';
 
 export const usersRepository = new UserRepository(db);
 

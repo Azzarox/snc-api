@@ -9,7 +9,6 @@ const baseJwtMiddleware = jwtMiddleware({ secret: envConfig.JWT_SECRET, algorith
 export const authMiddleware = async (ctx: Context, next: Next) => {
 	try {
 		await baseJwtMiddleware(ctx, next);
-	
 	} catch (err: any) {
 		if (err.status === StatusCodes.UNAUTHORIZED) {
 			if ('originalError' in err) {
