@@ -15,11 +15,10 @@ const registerUser = async (username: string, password: string) => {
 
 	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
 
-
 	const newUserData = {
 		username,
 		password: hashedPassword,
-	}
+	};
 
 	const newUser = await usersRepository.create(newUserData, ['id', 'username']);
 	return newUser;
@@ -45,8 +44,8 @@ const loginUser = async (username: string, password: string) => {
 };
 
 const getUsers = async () => {
-	return await usersRepository.getAll(['id','username','created_at', 'updated_at']);
-}
+	return await usersRepository.getAll(['id', 'username', 'created_at', 'updated_at']);
+};
 
 export const authService = {
 	registerUser,

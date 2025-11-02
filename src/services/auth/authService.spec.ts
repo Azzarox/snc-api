@@ -17,11 +17,10 @@ const user = {
 	password: hashedPassword,
 } as UserEntity;
 
-
 jest.mock('bcryptjs', () => ({
 	hash: jest.fn(),
 	compare: jest.fn(),
-}))
+}));
 
 describe('authService', () => {
 	afterEach(() => {
@@ -30,7 +29,6 @@ describe('authService', () => {
 	});
 
 	describe('authService.registerUser', () => {
-
 		it('should successfully register a new user', async () => {
 			const newUser = { id: 1, username: username } as UserEntity;
 
@@ -55,7 +53,7 @@ describe('authService', () => {
 			jest.spyOn(usersRepository, 'getByUsername').mockResolvedValue(user);
 
 			try {
-				await authService.registerUser(username, password)
+				await authService.registerUser(username, password);
 				expect(usersRepository.getByUsername).toHaveBeenCalledWith(username);
 				expect(usersRepository.create).not.toHaveBeenCalled();
 			} catch (err: any) {
@@ -94,7 +92,7 @@ describe('authService', () => {
 			expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
 			expect(createTokenUtil.createToken).toHaveBeenCalledWith({
 				id: user.id,
-				username: user.username
+				username: user.username,
 			});
 			expect(result).toEqual({ accessToken: jwtToken });
 		});
@@ -109,7 +107,7 @@ describe('authService', () => {
 			} catch (err: any) {
 				expect(err).toBeInstanceOf(CustomHttpError);
 				expect(err.status).toBe(StatusCodes.NOT_FOUND);
-				expect(err.message).toBe('Invalid Credentials')
+				expect(err.message).toBe('Invalid Credentials');
 			}
 		});
 
@@ -118,11 +116,11 @@ describe('authService', () => {
 			jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as never);
 
 			try {
-				await authService.loginUser(username, password)
-			}catch(err:any) {
-				expect(err).toBeInstanceOf(CustomHttpError)
-				expect(err.status).toBe(StatusCodes.UNAUTHORIZED)
-				expect(err.message).toBe('Invalid Credentials')
+				await authService.loginUser(username, password);
+			} catch (err: any) {
+				expect(err).toBeInstanceOf(CustomHttpError);
+				expect(err.status).toBe(StatusCodes.UNAUTHORIZED);
+				expect(err.message).toBe('Invalid Credentials');
 			}
 
 			expect(usersRepository.getByUsername).toHaveBeenCalledWith(username);
@@ -142,7 +140,7 @@ describe('authService', () => {
 			});
 			expect(createTokenUtil.createToken).not.toHaveBeenCalledWith(
 				expect.objectContaining({
-					password: expect.any(String)
+					password: expect.any(String),
 				})
 			);
 		});
@@ -181,7 +179,6 @@ describe('authService', () => {
 			expect(usersRepository.getAll).toHaveBeenCalledWith(['id', 'username', 'created_at', 'updated_at']);
 			expect(result).toEqual([]);
 		});
-
 
 		it('should not include password field in the result', async () => {
 			const users = [

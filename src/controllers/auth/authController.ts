@@ -25,13 +25,13 @@ const loginUser = async (ctx: ValidatedContext<LoginPayload>) => {
 const getUsers = async (ctx: Context) => {
 	const users = await authService.getUsers();
 	ctx.body = new SuccessResponse(StatusCodes.OK, null, users);
-}
+};
 
 const getCurrentUser = (ctx: Context) => {
 	const response = new SuccessResponse(StatusCodes.OK, null, ctx.state.user);
 	ctx.body = response;
 	ctx.status = response.status;
-}
+};
 
 export const authController = {
 	getUsers,
