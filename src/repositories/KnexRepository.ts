@@ -18,6 +18,7 @@ type BaseRepository<T> = Writer<T> & Reader<T>;
 type StringKeyOf<T> = Extract<keyof T, string>;
 type ReturnColumns<T> = StringKeyOf<T> | Array<StringKeyOf<T>> | '*';
 type SelectColumns<T> = ReturnColumns<T>;
+
 type CreateEntity<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
 
 export abstract class KnexRepository<T> implements BaseRepository<T> {
@@ -67,9 +68,9 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 		return this.qb.select(select).where(item).first() ?? null;
 	}
 
-	getAll(): Promise<T[]> {
+	async getAll(select: SelectColumns<T> = '*'): Promise<T[]> {
 		return this.qb
-			.select('*')
+			.select(select)
 			.from(this.tableName)
 			.then((rows) => rows as T[]);
 	}

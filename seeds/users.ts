@@ -2,8 +2,8 @@ import { Knex } from 'knex';
 
 export const DB_USER_SEEDS = [
     {
-        username: 'test',
-        password: 'test',
+        username: 'test123',
+        password: '$2b$10$kEU7Auoy3D3u8r6ve6577Oqx7Zvt0dzONwKzE5UDPw.EtlsGmoWHG',
     },
 ] as const;
 
