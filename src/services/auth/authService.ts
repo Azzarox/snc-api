@@ -26,8 +26,16 @@ const registerUser = async (payload: RegisterPayload) => {
 	return newUser;
 };
 
-const loginUser = async (username: string, password: string) => {
-	const user = await usersRepository.getByUsername(username, '*');
+const loginUser = async (payload: LoginPayload) => {
+	const { password } = payload;
+
+	let user: Pick<UserEntity, 'id' | 'username' | 'password'> | null = null;
+	if ('username' in payload) {
+		user = await usersRepository.getByUsername(payload.username, ['id', 'username', 'password']);
+	} else {
+		user = await usersRepository.getByEmail(payload.email, ['id', 'username', 'password']);
+	}
+	
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Invalid Credentials');
 	}
@@ -37,8 +45,8 @@ const loginUser = async (username: string, password: string) => {
 		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials');
 	}
 
-	const payload = { id: user.id, username: user.username };
-	const accessToken = createToken(payload);
+	const tokenPayload = { id: user.id, username: user.username };
+	const accessToken = createToken(tokenPayload);
 
 	return {
 		accessToken,

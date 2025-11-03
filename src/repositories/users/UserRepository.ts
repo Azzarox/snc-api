@@ -14,4 +14,11 @@ export class UserRepository extends KnexRepository<UserEntity> {
 	): Promise<UserEntity | null> {
 		return super.findOneBy({ username }, select);
 	}
+
+	async getByEmail(
+		email: string,
+		select: SelectColumns<UserEntity> = ['id', 'username', 'created_at', 'updated_at']
+	): Promise<UserEntity | null> {
+		return super.findOneBy({ email }, select);
+	}
 }
