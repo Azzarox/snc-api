@@ -4,14 +4,19 @@ import * as bcrypt from 'bcryptjs';
 import { envConfig } from '../../../config/envConfig';
 
 import { createToken } from '../../utils/createToken';
-import { usersRepository } from '../../repositories';
-import { RegisterPayload } from '../../schemas/auth/registerSchema';
+import { UserRepository, usersRepository } from '../../repositories';
+import {  RegisterPayload } from '../../schemas/auth/registerSchema';
+
+import { UserEntity } from '../../schemas/entities/userEntitySchema';
+import { LoginPayload } from '../../schemas/auth/loginSchema';
 
 const registerUser = async (payload: RegisterPayload) => {
-	const { username, password } = payload;
-	const userByUsername = await usersRepository.getByUsername(username);
+	const { username, password, email } = payload;
 
-	if (userByUsername) {
+	const userByUsername = await usersRepository.getByUsername(username, 'id');
+	const userByEmail = await usersRepository.getByEmail(email, 'id');
+
+	if (userByUsername || userByEmail) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'User already exists!');
 	}
 
@@ -20,6 +25,7 @@ const registerUser = async (payload: RegisterPayload) => {
 	const newUserData = {
 		username,
 		password: hashedPassword,
+		email: email,
 	};
 
 	const newUser = await usersRepository.create(newUserData, ['id', 'username']);
