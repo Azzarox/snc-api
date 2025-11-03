@@ -25,7 +25,7 @@ const registerUser = async (username: string, password: string) => {
 };
 
 const loginUser = async (username: string, password: string) => {
-	const user = await usersRepository.getByUsername(username);
+	const user = await usersRepository.getByUsername(username,'*');
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Invalid Credentials');
 	}
