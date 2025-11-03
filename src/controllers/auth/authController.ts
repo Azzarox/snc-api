@@ -6,9 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
 
 const registerUser = async (ctx: ValidatedContext<RegisterPayload>) => {
-	const { username, password } = ctx.request.body;
-
-	const user = await authService.registerUser(username, password);
+	const user = await authService.registerUser(ctx.request.body);
 	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully created user!', user);
 	ctx.status = response.status;
 	ctx.body = response;

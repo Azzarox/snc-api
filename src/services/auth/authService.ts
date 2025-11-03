@@ -5,11 +5,13 @@ import { envConfig } from '../../../config/envConfig';
 
 import { createToken } from '../../utils/createToken';
 import { usersRepository } from '../../repositories';
+import { RegisterPayload } from '../../schemas/auth/registerSchema';
 
-const registerUser = async (username: string, password: string) => {
-	const user = await usersRepository.getByUsername(username);
+const registerUser = async (payload: RegisterPayload) => {
+	const { username, password } = payload;
+	const userByUsername = await usersRepository.getByUsername(username);
 
-	if (user) {
+	if (userByUsername) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'User already exists!');
 	}
 
@@ -25,7 +27,7 @@ const registerUser = async (username: string, password: string) => {
 };
 
 const loginUser = async (username: string, password: string) => {
-	const user = await usersRepository.getByUsername(username,'*');
+	const user = await usersRepository.getByUsername(username, '*');
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Invalid Credentials');
 	}
