@@ -11,8 +11,15 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 
 	async getCurrentUserProfile(
 		userId: number,
-		select: SelectColumns<UserProfileEntity> = ['id', 'user_id', 'first_name', 'last_name']
-	): Promise<UserProfileEntity | null> {
-		return super.findOneBy({ user_id: userId }, select);
+		select: SelectColumns<UserProfileEntity> = ['first_name', 'last_name']
+	): Promise<(UserProfileEntity & { email: string }) | null> {
+		const result = await super.qb
+			.select(select)
+			.select('users.email')
+			.leftJoin('users', `${this.tableName}.user_id`, 'users.id')
+			.where({ [`${this.tableName}.user_id`]: userId })
+			.first();
+
+		return result || null;
 	}
 }
