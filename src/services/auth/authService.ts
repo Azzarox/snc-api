@@ -3,28 +3,29 @@ import { CustomHttpError } from '../../common/errors/CustomHttpError';
 import * as bcrypt from 'bcryptjs';
 import { envConfig } from '../../../config/envConfig';
 
-const users: { username: string; password: string }[] = [];
 import { createToken } from '../../utils/createToken';
+import { usersRepository } from '../../repositories';
 
 const registerUser = async (username: string, password: string) => {
-	if (users.find((u) => u.username === username)) {
+	const user = await usersRepository.getByUsername(username);
+
+	if (user) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'User already exists!');
 	}
 
 	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
 
-	const user = {
+	const newUserData = {
 		username,
 		password: hashedPassword,
 	};
 
-	users.push(user);
-
-	return user;
+	const newUser = await usersRepository.create(newUserData, ['id', 'username']);
+	return newUser;
 };
 
 const loginUser = async (username: string, password: string) => {
-	const user = users.find((u) => u.username === username);
+	const user = await usersRepository.getByUsername(username);
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Invalid Credentials');
 	}
@@ -34,7 +35,7 @@ const loginUser = async (username: string, password: string) => {
 		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials');
 	}
 
-	const payload = { username: user.username };
+	const payload = { id: user.id, username: user.username };
 	const accessToken = createToken(payload);
 
 	return {
@@ -42,8 +43,12 @@ const loginUser = async (username: string, password: string) => {
 	};
 };
 
+const getUsers = async () => {
+	return await usersRepository.getAll(['id', 'username', 'created_at', 'updated_at']);
+};
+
 export const authService = {
-	users,
 	registerUser,
 	loginUser,
+	getUsers,
 };

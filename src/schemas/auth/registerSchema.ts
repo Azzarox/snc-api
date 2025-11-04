@@ -1,8 +1,9 @@
 import z from 'zod';
+import { userEntitySchema } from '../entities/userEntitySchema';
 
-export const registerSchema = z.object({
-	username: z.string().nonempty('Cannot be empty@'),
-	password: z.string().nonempty('Cannot be empty@'),
+export const registerSchema = userEntitySchema.pick({
+	username: true,
+	password: true,
 });
 
 export type RegisterPayload = z.infer<typeof registerSchema>;
