@@ -9,6 +9,8 @@ import {  RegisterPayload } from '../../schemas/auth/registerSchema';
 
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 import { LoginPayload } from '../../schemas/auth/loginSchema';
+import { UserProfilePayload } from '../../schemas/auth/userProfileSchema';
+import { userService } from '../userService';
 
 const registerUser = async (payload: RegisterPayload) => {
 	const { username, password, email } = payload;
@@ -29,7 +31,17 @@ const registerUser = async (payload: RegisterPayload) => {
 	};
 
 	const newUser = await usersRepository.create(newUserData, ['id', 'username']);
-	return newUser;
+
+	const profilePayload: UserProfilePayload = {
+		firstName: payload.firstName,
+		lastName: payload.lastName,
+		bio: payload.bio,
+		description: payload.bio,
+	}
+
+	const profile = await userService.createUserProfile(newUser.id, profilePayload);
+
+	return { ...newUser, ...profile };
 };
 
 const loginUser = async (payload: LoginPayload) => {

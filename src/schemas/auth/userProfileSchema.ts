@@ -9,3 +9,5 @@ export const userProfileSchema = z.object({
     // primarySkill: z.string().optional(),
     // yearsExperience: z.string().optional(),
 })
+
+export type UserProfilePayload = z.infer<typeof userProfileSchema>
