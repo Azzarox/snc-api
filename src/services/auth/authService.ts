@@ -36,7 +36,7 @@ const registerUser = async (payload: RegisterPayload) => {
 		firstName: payload.firstName,
 		lastName: payload.lastName,
 		bio: payload.bio,
-		description: payload.bio,
+		description: payload.description,
 	}
 
 	const profile = await userService.createUserProfile(newUser.id, profilePayload);
