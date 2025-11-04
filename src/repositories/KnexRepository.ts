@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 
 interface Writer<T> {
-	create(item: CreateEntity<T>, returning?: ReturnColumns<T>): Promise<T>;
+	create(item: CreateEntity<T>, returning?: ReturnColumns<T>, trx?: Knex.Transaction): Promise<T>;
 	update(id: string | number, item: Partial<T>, returning?: ReturnColumns<T>): Promise<T>;
 	delete(id: string | number, returning?: ReturnColumns<T>): Promise<T>;
 }
@@ -30,8 +30,12 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 		return this.knex(this.tableName);
 	}
 
-	async create(data: CreateEntity<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
-		return this.qb
+	protected getQueryBuilder(trx?: Knex.Transaction): Knex.QueryBuilder {
+		return trx ? trx(this.tableName) : this.knex(this.tableName);
+	}
+
+	async create(data: CreateEntity<T>, returning: ReturnColumns<T> = '*', trx?: Knex.Transaction): Promise<T> {
+		return this.getQueryBuilder(trx)
 			.insert(data)
 			.returning(returning)
 			.then((rows) => rows[0]);

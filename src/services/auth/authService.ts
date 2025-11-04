@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
 import * as bcrypt from 'bcryptjs';
 import { envConfig } from '../../../config/envConfig';
+import { db } from '../../../config/knexConfig';
 
 import { createToken } from '../../utils/createToken';
 import { UserRepository, usersRepository } from '../../repositories';
@@ -24,24 +25,27 @@ const registerUser = async (payload: RegisterPayload) => {
 
 	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
 
-	const newUserData = {
-		username,
-		password: hashedPassword,
-		email: email,
-	};
+	// Use transaction to ensure both user and profile are created atomically
+	return await db.transaction(async (trx) => {
+		const newUserData = {
+			username,
+			password: hashedPassword,
+			email: email,
+		};
 
-	const newUser = await usersRepository.create(newUserData, ['id', 'username']);
+		const newUser = await usersRepository.create(newUserData, ['id', 'username'], trx);
 
-	const profilePayload: UserProfilePayload = {
-		firstName: payload.firstName,
-		lastName: payload.lastName,
-		bio: payload.bio,
-		description: payload.description,
-	}
+		const profilePayload: UserProfilePayload = {
+			firstName: payload.firstName,
+			lastName: payload.lastName,
+			bio: payload.bio,
+			description: payload.description,
+		}
+		
+		const profile = await userService.createUserProfile(newUser.id, profilePayload, trx);
 
-	const profile = await userService.createUserProfile(newUser.id, profilePayload);
-
-	return { ...newUser, ...profile };
+		return { ...newUser, ...profile };
+	});
 };
 
 const loginUser = async (payload: LoginPayload) => {
