@@ -19,7 +19,7 @@ type StringKeyOf<T> = Extract<keyof T, string>;
 type ReturnColumns<T> = StringKeyOf<T> | Array<StringKeyOf<T>> | '*';
 type SelectColumns<T> = ReturnColumns<T>;
 
-type CreateEntity<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
+type CreateEntity<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 
 export abstract class KnexRepository<T> implements BaseRepository<T> {
 	protected abstract tableName: string;
@@ -46,7 +46,7 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 			.where({ id: id })
 			.update({
 				...item,
-				updated_at: new Date(),
+				updatedAt: new Date(),
 			})
 			.returning(returning)
 			.then((rows) => rows[0]);

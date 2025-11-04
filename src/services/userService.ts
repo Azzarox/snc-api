@@ -10,16 +10,9 @@ const getCurrentUserProfile = async (id: number) => {
 
 const createUserProfile = async (userId: number, payload: UserProfilePayload, trx?: Knex.Transaction): Promise<UserProfileEntity> => {
 	const entity: CreateEntity<UserProfileEntity> = {
-		user_id: userId,
-		first_name: payload.firstName,
-		last_name: payload.lastName,
+		userId,
+		...payload,
 	}
-
-	if (payload.bio)
-		entity.bio = payload.bio
-
-	if (payload.description)
-		entity.description = payload.description
 
 	return await userProfilesRepository.create(entity, '*', trx);
 };

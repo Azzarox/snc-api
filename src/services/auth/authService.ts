@@ -12,6 +12,9 @@ import { UserEntity } from '../../schemas/entities/userEntitySchema';
 import { LoginPayload } from '../../schemas/auth/loginSchema';
 import { UserProfilePayload } from '../../schemas/auth/userProfileSchema';
 import { userService } from '../userService';
+import { User } from '../../types/koa';
+import { UserProfileEntity } from '../../schemas/entities/userProfileEntitySchema';
+import { CreateEntity } from '../../repositories/KnexRepository';
 
 const registerUser = async (payload: RegisterPayload) => {
 	const { username, password, email } = payload;
@@ -26,7 +29,7 @@ const registerUser = async (payload: RegisterPayload) => {
 	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
 
 	return await withTransaction(async (trx) => {
-		const newUserData = {
+		const newUserData: CreateEntity<UserEntity>  = {
 			username,
 			password: hashedPassword,
 			email: email,
@@ -41,20 +44,27 @@ const registerUser = async (payload: RegisterPayload) => {
 			description: payload.description,
 		}
 
-		const profile = await userService.createUserProfile(newUser.id, profilePayload, trx);
+		const profile: UserProfileEntity = await userService.createUserProfile(newUser.id, profilePayload, trx);
 
-		return { ...newUser, ...profile };
+		return {
+			id: newUser.id,
+			profile: {
+				id: profile.id,
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+			}
+		}
 	});
 };
 
 const loginUser = async (payload: LoginPayload) => {
 	const { password } = payload;
 
-	let user: Pick<UserEntity, 'id' | 'username' | 'password'> | null = null;
+	let user: Pick<UserEntity, 'id' | 'username' | 'password' | 'email'> | null = null;
 	if ('username' in payload) {
-		user = await usersRepository.getByUsername(payload.username, ['id', 'username', 'password']);
+		user = await usersRepository.getByUsername(payload.username, ['id', 'username', 'password', 'email']);
 	} else {
-		user = await usersRepository.getByEmail(payload.email, ['id', 'username', 'password']);
+		user = await usersRepository.getByEmail(payload.email, ['id', 'username', 'password', 'email']);
 	}
 	
 	if (!user) {
@@ -66,7 +76,7 @@ const loginUser = async (payload: LoginPayload) => {
 		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials');
 	}
 
-	const tokenPayload = { id: user.id, username: user.username };
+	const tokenPayload: User = { id: user.id, email: user.email, username: user.username };
 	const accessToken = createToken(tokenPayload);
 
 	return {
@@ -75,7 +85,7 @@ const loginUser = async (payload: LoginPayload) => {
 };
 
 const getUsers = async () => {
-	return await usersRepository.getAll(['id', 'username', 'created_at', 'updated_at']);
+	return await usersRepository.getAll(['id', 'username', 'createdAt', 'updatedAt']);
 };
 
 export const authService = {
