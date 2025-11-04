@@ -72,7 +72,7 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 		return this.qb
 			.select(select)
 			.from(this.tableName)
-			.then((rows) => rows as T[]);
+			.then((rows) => rows);
 	}
 }
 
