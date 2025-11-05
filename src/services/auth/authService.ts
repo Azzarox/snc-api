@@ -15,10 +15,12 @@ import { userService } from '../userService';
 import { User } from '../../types/koa';
 import { UserProfileEntity } from '../../schemas/entities/userProfileEntitySchema';
 import { CreateEntity } from '../../repositories/KnexRepository';
+import { comparePasswords, hashPassword } from '../../utils/auth';
 
 const registerUser = async (payload: RegisterPayload) => {
 	const { username, password, email } = payload;
 
+	// TODO: Use identifier -> pole ...
 	const userByUsername = await usersRepository.getByUsername(username, 'id');
 	const userByEmail = await usersRepository.getByEmail(email, 'id');
 
@@ -26,7 +28,7 @@ const registerUser = async (payload: RegisterPayload) => {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'User already exists!');
 	}
 
-	const hashedPassword = await bcrypt.hash(password, envConfig.SALT);
+	const hashedPassword = await hashPassword(password, envConfig.SALT);
 
 	return await withTransaction(async (trx) => {
 		const newUserData: CreateEntity<UserEntity>  = {
@@ -68,12 +70,12 @@ const loginUser = async (payload: LoginPayload) => {
 	}
 	
 	if (!user) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Invalid Credentials');
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Wrong username or password');
 	}
 
-	const isValid = await bcrypt.compare(password, user.password);
+	const isValid = await comparePasswords(password, user.password);
 	if (!isValid) {
-		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Invalid Credentials');
+		throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Wrong username or password');
 	}
 
 	const tokenPayload: User = { id: user.id, email: user.email, username: user.username };
