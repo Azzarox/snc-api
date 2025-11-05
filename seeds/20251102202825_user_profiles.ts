@@ -4,8 +4,8 @@ import { UserProfileEntity} from '../src/schemas/entities/userProfileEntitySchem
 
 const DB_USER_PROFILE_SEEDS: Partial<UserProfileEntity>[] = [
 	{
-		first_name: 'Test',
-		last_name: 'Testing',
+		firstName: 'Test',
+		lastName: 'Testing',
 		bio: 'This is user Test Testing bio',
 		description: 'I am user test testing ...'
 	}
@@ -30,7 +30,7 @@ export async function seed(knex: Knex): Promise<void> {
 		throw new Error('No user profile seed data found');
 	}
 
-	userProfile.user_id = user.id;
+	userProfile.userId = user.id;
 
 	await knex('user_profiles').insert([userProfile]);
 }

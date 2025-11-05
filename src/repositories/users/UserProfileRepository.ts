@@ -11,7 +11,7 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 
 	async getCurrentUserProfile(
 		userId: number,
-		select: SelectColumns<UserProfileEntity> = ['firstName', 'lastName']
+		select: SelectColumns<UserProfileEntity> = ['firstName', 'lastName', 'description', 'bio', 'createdAt']
 	): Promise<(UserProfileEntity 
 		// & { email: string }
 	)
