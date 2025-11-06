@@ -19,4 +19,4 @@ const options = {
 export const connectDB = () => db.raw('SELECT 1');
 
 export const knexSetup = knexStringcase(options);
-export const db = (knex(knexSetup));
+export const db = knex(knexSetup);

@@ -1,6 +1,6 @@
 import { Context } from 'koa';
 import { authService } from '../../services/auth/authService';
-import {  RegisterPayload } from '../../schemas/auth/registerSchema';
+import { RegisterPayload } from '../../schemas/auth/registerSchema';
 import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
@@ -19,7 +19,6 @@ const loginUser = async (ctx: ValidatedContext<LoginPayload>) => {
 	ctx.status = response.status;
 	ctx.body = response;
 };
-
 
 const getCurrentUser = (ctx: Context) => {
 	const response = new SuccessResponse(StatusCodes.OK, null, ctx.state.user);

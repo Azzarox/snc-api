@@ -12,4 +12,9 @@ export const userRouter = new Router({
 userRouter.get('/', authMiddleware, userController.getAllUsers);
 
 userRouter.get('/profile', authMiddleware, userController.getCurrentUserProfile);
-userRouter.patch('/profile', authMiddleware, validate({ body: updateUserProfileSchema }), userController.updateCurrentUserProfile);
+userRouter.patch(
+	'/profile',
+	authMiddleware,
+	validate({ body: updateUserProfileSchema }),
+	userController.updateCurrentUserProfile
+);

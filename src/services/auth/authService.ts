@@ -6,7 +6,7 @@ import { envConfig } from '../../../config/envConfig';
 import { createToken } from '../../utils/createToken';
 import { withTransaction } from '../../utils/withTransaction';
 import { UserRepository, usersRepository } from '../../repositories';
-import {  RegisterPayload } from '../../schemas/auth/registerSchema';
+import { RegisterPayload } from '../../schemas/auth/registerSchema';
 
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 import { LoginPayload } from '../../schemas/auth/loginSchema';
@@ -31,7 +31,7 @@ const registerUser = async (payload: RegisterPayload) => {
 	const hashedPassword = await hashPassword(password, envConfig.SALT);
 
 	return await withTransaction(async (trx) => {
-		const newUserData: CreateEntity<UserEntity>  = {
+		const newUserData: CreateEntity<UserEntity> = {
 			username,
 			password: hashedPassword,
 			email: email,
@@ -44,7 +44,7 @@ const registerUser = async (payload: RegisterPayload) => {
 			lastName: payload.lastName,
 			bio: payload.bio,
 			description: payload.description,
-		}
+		};
 
 		const profile: UserProfileEntity = await userService.createUserProfile(newUser.id, profilePayload, trx);
 
@@ -54,8 +54,8 @@ const registerUser = async (payload: RegisterPayload) => {
 				id: profile.id,
 				firstName: profile.firstName,
 				lastName: profile.lastName,
-			}
-		}
+			},
+		};
 	});
 };
 
@@ -68,7 +68,7 @@ const loginUser = async (payload: LoginPayload) => {
 	} else {
 		user = await usersRepository.getByEmail(payload.email, ['id', 'username', 'password', 'email']);
 	}
-	
+
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Wrong username or password');
 	}
@@ -85,7 +85,6 @@ const loginUser = async (payload: LoginPayload) => {
 		accessToken,
 	};
 };
-
 
 export const authService = {
 	registerUser,

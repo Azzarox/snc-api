@@ -13,22 +13,21 @@ const getCurrentUserProfile = async (ctx: Context) => {
 };
 
 const updateCurrentUserProfile = async (ctx: ValidatedContext<UpdateUserProfilePayload>) => {
-	const updatedProfile = await userService.updateUserProfile(ctx.state.user.id, ctx.request.body)
-	const response = new SuccessResponse(StatusCodes.OK, 'Updated successfully!', updatedProfile)
+	const updatedProfile = await userService.updateUserProfile(ctx.state.user.id, ctx.request.body);
+	const response = new SuccessResponse(StatusCodes.OK, 'Updated successfully!', updatedProfile);
 	ctx.status = response.status;
 	ctx.body = response;
-}
+};
 
 const getAllUsers = async (ctx: Context) => {
 	const users = await userService.getAllUsers();
 	const response = new SuccessResponse(StatusCodes.OK, null, users);
 	ctx.status = response.status;
 	ctx.body = response;
-}
+};
 
 export const userController = {
 	getCurrentUserProfile,
 	updateCurrentUserProfile,
 	getAllUsers,
-	
 };

@@ -12,10 +12,11 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 	async getCurrentUserProfile(
 		userId: number,
 		select: SelectColumns<UserProfileEntity> = ['firstName', 'lastName', 'description', 'bio', 'createdAt']
-	): Promise<(UserProfileEntity 
+	): Promise<
+		| UserProfileEntity
 		// & { email: string }
-	)
-		 | null> {
+		| null
+	> {
 		const result = await super.qb
 			.select(select)
 			// .select('users.email', 'users.username')
