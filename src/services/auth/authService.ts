@@ -86,10 +86,6 @@ const loginUser = async (payload: LoginPayload) => {
 	};
 };
 
-const getUsers = async () => {
-	return await usersRepository.getAll(['id', 'username', 'createdAt', 'updatedAt']);
-};
-
 export const authService = {
 	registerUser,
 	loginUser,
