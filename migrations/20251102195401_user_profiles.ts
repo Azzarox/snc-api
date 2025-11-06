@@ -6,8 +6,8 @@ export async function up(knex: Knex): Promise<void> {
 		table.integer('user_id').unsigned().notNullable().unique();
 		table.foreign('user_id').references('users.id').onDelete('CASCADE');
 
-		table.string('first_name').notNullable();
-		table.string('last_name').notNullable();
+		table.string('first_name', 50).notNullable();
+		table.string('last_name', 50).notNullable();
 		table.string('bio', 120).nullable();
 		table.string('description', 255).nullable();
 		table.timestamps(true, true);

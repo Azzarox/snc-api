@@ -6,6 +6,11 @@ export const DB_USER_SEEDS: Partial<UserEntity>[] = [
 		username: 'test123',
 		password: '$2b$10$kEU7Auoy3D3u8r6ve6577Oqx7Zvt0dzONwKzE5UDPw.EtlsGmoWHG',
 		email: 'test123@gmail.com',
+	},
+	{
+		username: 'sarah',
+		password: '$2b$10$kEU7Auoy3D3u8r6ve6577Oqx7Zvt0dzONwKzE5UDPw.EtlsGmoWHG',
+		email: 'sarah_michael@gmail.com',
 	}
 ];
 
