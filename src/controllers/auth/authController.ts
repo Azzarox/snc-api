@@ -20,10 +20,6 @@ const loginUser = async (ctx: ValidatedContext<LoginPayload>) => {
 	ctx.body = response;
 };
 
-const getUsers = async (ctx: Context) => {
-	const users = await authService.getUsers();
-	ctx.body = new SuccessResponse(StatusCodes.OK, null, users);
-};
 
 const getCurrentUser = (ctx: Context) => {
 	const response = new SuccessResponse(StatusCodes.OK, null, ctx.state.user);
@@ -32,7 +28,6 @@ const getCurrentUser = (ctx: Context) => {
 };
 
 export const authController = {
-	getUsers,
 	registerUser,
 	loginUser,
 	getCurrentUser,

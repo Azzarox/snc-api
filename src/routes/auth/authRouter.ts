@@ -13,5 +13,3 @@ authRouter.post('/login', validate({ body: loginSchema }), authController.loginU
 authRouter.post('/register', validate({ body: registerSchema }), authController.registerUser);
 
 authRouter.get('/me', authMiddleware, authController.getCurrentUser);
-
-authRouter.get('/users', authMiddleware, authController.getUsers);

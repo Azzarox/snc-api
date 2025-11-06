@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 interface Writer<T> {
 	create(item: CreateEntity<T>, returning?: ReturnColumns<T>, trx?: Knex.Transaction): Promise<T>;
-	update(id: string | number, item: Partial<T>, returning?: ReturnColumns<T>): Promise<T>;
+	update(where: string | number | Partial<T>, item: Partial<T>, returning?: ReturnColumns<T>): Promise<T>;
 	delete(id: string | number, returning?: ReturnColumns<T>): Promise<T>;
 }
 
@@ -41,9 +41,10 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 			.then((rows) => rows[0]);
 	}
 
-	async update(id: string | number, item: Partial<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
+	async update(where: string | number | Partial<T>, item: Partial<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
+		const whereClause = typeof where === 'object' ? where : { id: where };
 		return this.qb
-			.where({ id: id })
+			.where(whereClause)
 			.update({
 				...item,
 				updatedAt: new Date(),
