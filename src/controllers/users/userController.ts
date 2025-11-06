@@ -3,7 +3,7 @@ import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '../../services/userService';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
-import { UserProfilePayload } from '../../schemas/auth/userProfileSchema';
+import { UpdateUserProfilePayload } from '../../schemas/auth/userProfileSchema';
 
 const getCurrentUserProfile = async (ctx: Context) => {
 	const profile = await userService.getCurrentUserProfile(ctx.state.user.id);
@@ -12,7 +12,7 @@ const getCurrentUserProfile = async (ctx: Context) => {
 	ctx.body = response;
 };
 
-const updateCurrentUserProfile = async (ctx: ValidatedContext<UserProfilePayload>) => {
+const updateCurrentUserProfile = async (ctx: ValidatedContext<UpdateUserProfilePayload>) => {
 	const updatedProfile = await userService.updateUserProfile(ctx.state.user.id, ctx.request.body)
 	const response = new SuccessResponse(StatusCodes.OK, 'Updated successfully!', updatedProfile)
 	ctx.status = response.status;

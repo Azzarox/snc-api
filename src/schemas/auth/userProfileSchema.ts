@@ -10,4 +10,15 @@ export const userProfileSchema = z.object({
     // yearsExperience: z.string().optional(),
 })
 
+export const updateUserProfileSchema = userProfileSchema.partial().superRefine((data, ctx) => {
+      if (!Object.values(data).some((value) => value !== undefined)) {
+          ctx.addIssue({
+              code: "custom",
+              message: 'At least one field must be provided to update!',
+              path: ['body'],
+          });
+      }
+  });
+
 export type UserProfilePayload = z.infer<typeof userProfileSchema>
+export type UpdateUserProfilePayload = z.infer<typeof updateUserProfileSchema>

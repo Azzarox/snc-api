@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 import { userProfilesRepository, usersRepository } from '../repositories';
 import { CreateEntity } from '../repositories/KnexRepository';
-import { UserProfilePayload } from '../schemas/auth/userProfileSchema';
+import { UpdateUserProfilePayload, UserProfilePayload } from '../schemas/auth/userProfileSchema';
 import { UserProfileEntity } from '../schemas/entities/userProfileEntitySchema';
 
 
@@ -24,7 +24,7 @@ const createUserProfile = async (userId: number, payload: UserProfilePayload, tr
 	return await userProfilesRepository.create(entity, '*', trx);
 };
 
-const updateUserProfile = async (userId: number, payload: UserProfilePayload) => {
+const updateUserProfile = async (userId: number, payload: UpdateUserProfilePayload) => {
 	const p = await userProfilesRepository.update({userId: userId}, payload);
 	return p;
 }

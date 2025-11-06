@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { authController } from '../../controllers/auth/authController';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { userController } from '../../controllers/users/userController';
-import { userProfileSchema } from '../../schemas/auth/userProfileSchema';
+import { updateUserProfileSchema } from '../../schemas/auth/userProfileSchema';
 import { validate } from '../../middlewares/validationMiddleware';
 
 export const userRouter = new Router({
@@ -12,4 +12,4 @@ export const userRouter = new Router({
 userRouter.get('/', authMiddleware, userController.getAllUsers);
 
 userRouter.get('/profile', authMiddleware, userController.getCurrentUserProfile);
-userRouter.patch('/profile', authMiddleware, validate({ body: userProfileSchema }), userController.updateCurrentUserProfile);
+userRouter.patch('/profile', authMiddleware, validate({ body: updateUserProfileSchema }), userController.updateCurrentUserProfile);
