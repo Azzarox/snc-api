@@ -19,7 +19,7 @@ import { comparePasswords, hashPassword } from '../../utils/auth';
 const registerUser = async (payload: RegisterPayload) => {
 	const { username, password, email } = payload;
 
-	// TODO: Use identifier -> pole ...
+	// TODO: Use identifier -> 1 function ...
 	const userByUsername = await usersRepository.getByUsername(username, 'id');
 	const userByEmail = await usersRepository.getByEmail(email, 'id');
 

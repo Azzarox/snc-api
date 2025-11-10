@@ -3,6 +3,10 @@ import { userProfilesRepository, usersRepository } from '../repositories';
 import { CreateEntity } from '../repositories/KnexRepository';
 import { UpdateUserProfilePayload, UserProfilePayload } from '../schemas/auth/userProfileSchema';
 import { UserProfileEntity } from '../schemas/entities/userProfileEntitySchema';
+import { uploadImage, deleteImage } from './cloudinary/cloudinaryService';
+import multer from '@koa/multer';
+import { CustomHttpError } from '../common/errors/CustomHttpError';
+import { StatusCodes } from 'http-status-codes';
 
 const getAllUsers = async () => {
 	return await usersRepository.getAll(['id', 'username', 'createdAt', 'updatedAt']);
@@ -26,8 +30,38 @@ const createUserProfile = async (
 };
 
 const updateUserProfile = async (userId: number, payload: UpdateUserProfilePayload) => {
-	const p = await userProfilesRepository.update({ userId: userId }, payload);
-	return p;
+	return await userProfilesRepository.update({ userId: userId }, payload);
+};
+
+const uploadAvatar = async (userId: number, file: multer.File) => {
+	if (!file) {
+		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'No uploaded file!');
+	}
+
+	const profile = await userProfilesRepository.getCurrentUserProfile(userId, 'avatarStorageKey');
+
+	if (!profile) {
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
+	}
+
+	if (profile.avatarStorageKey) {
+		await deleteImage(profile.avatarStorageKey);
+	}
+
+	const user = await usersRepository.findOneBy({ id: userId }, 'username');
+	if (!user) {
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
+	}
+
+	const result = await uploadImage(file.buffer, `/user/${user.username}/avatar`);
+
+	const updatedProfile = await userProfilesRepository.update(
+		{ userId },
+		{ avatarUrl: result.url, avatarStorageKey: result.publicId },
+		'avatarUrl'
+	);
+
+	return updatedProfile;
 };
 
 export const userService = {
@@ -35,4 +69,5 @@ export const userService = {
 	getCurrentUserProfile,
 	createUserProfile,
 	updateUserProfile,
+	uploadAvatar,
 };

@@ -7,6 +7,12 @@ export const userProfileEntitySchema = z.object({
 	lastName: z.string().min(1, 'Please enter a last name!'),
 	bio: z.string().max(60, 'Please shorten the bio information!').optional(),
 	description: z.string().max(255, 'Please shorten the description information!').optional(),
+
+	avatarUrl: z.string().nullable().optional(),
+	avatarStorageKey: z.string().nullable().optional(),
+	coverUrl: z.string().nullable().optional(),
+	coverStorageKey: z.string().nullable().optional(),
+	
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });

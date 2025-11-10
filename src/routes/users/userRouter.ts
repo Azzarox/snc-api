@@ -3,6 +3,7 @@ import { authMiddleware } from '../../middlewares/authMiddleware';
 import { userController } from '../../controllers/users/userController';
 import { updateUserProfileSchema } from '../../schemas/auth/userProfileSchema';
 import { validate } from '../../middlewares/validationMiddleware';
+import { uploadSingleImage } from '../../middlewares/uploadMiddleware';
 
 export const userRouter = new Router({
 	prefix: '/users',
@@ -17,3 +18,5 @@ userRouter.patch(
 	validate({ body: updateUserProfileSchema }),
 	userController.updateCurrentUserProfile
 );
+
+userRouter.put('/profile/avatar', authMiddleware, uploadSingleImage('avatar'), userController.uploadAvatar);

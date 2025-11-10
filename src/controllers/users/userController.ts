@@ -1,5 +1,5 @@
 import { Context } from 'koa';
-import { SuccessResponse } from '../../common/response/Response';
+import { FailResponse, SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '../../services/userService';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
@@ -26,8 +26,17 @@ const getAllUsers = async (ctx: Context) => {
 	ctx.body = response;
 };
 
+const uploadAvatar = async (ctx: Context) => {
+	const file = ctx.request.file;
+	const avatarUrlData = await userService.uploadAvatar(ctx.state.user.id, file);
+	const response = new SuccessResponse(StatusCodes.OK, 'Avatar uploaded successfully', avatarUrlData);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
 export const userController = {
 	getCurrentUserProfile,
 	updateCurrentUserProfile,
 	getAllUsers,
+	uploadAvatar,
 };
