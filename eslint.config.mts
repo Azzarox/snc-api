@@ -15,7 +15,6 @@ export default defineConfig([
 
 	{
 		files: ['**/*.{js,ts,cjs,mjs}'],
-		ignores: ['jest.config.ts'],
 		languageOptions: {
 			parser: tseslint.parser,
 			parserOptions: {

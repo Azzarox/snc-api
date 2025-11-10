@@ -8,6 +8,7 @@ const migrations = {
 
 const seeds = {
 	directory: './seeds/',
+	extension: 'ts',
 };
 
 const knexConfig: { [key: string]: Knex.Config } = {

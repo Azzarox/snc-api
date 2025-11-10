@@ -1,12 +1,7 @@
 import z from 'zod';
-import { userEntitySchema } from '../entities/userEntitySchema';
+import { authSchema } from './commonSchemas';
+import { userProfileSchema } from './userProfileSchema';
 
-export const registerSchema = userEntitySchema.pick({
-	username: true,
-	password: true,
-});
+export const registerSchema = authSchema.extend(userProfileSchema.shape);
 
 export type RegisterPayload = z.infer<typeof registerSchema>;
-
-export const loginSchema = registerSchema;
-export type LoginPayload = z.infer<typeof loginSchema>;

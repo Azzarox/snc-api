@@ -1,8 +1,8 @@
 import { Knex } from 'knex';
 
 interface Writer<T> {
-	create(item: CreateEntity<T>, returning?: ReturnColumns<T>): Promise<T>;
-	update(id: string | number, item: Partial<T>, returning?: ReturnColumns<T>): Promise<T>;
+	create(item: CreateEntity<T>, returning?: ReturnColumns<T>, trx?: Knex.Transaction): Promise<T>;
+	update(where: string | number | Partial<T>, item: Partial<T>, returning?: ReturnColumns<T>): Promise<T>;
 	delete(id: string | number, returning?: ReturnColumns<T>): Promise<T>;
 }
 
@@ -19,7 +19,7 @@ type StringKeyOf<T> = Extract<keyof T, string>;
 type ReturnColumns<T> = StringKeyOf<T> | Array<StringKeyOf<T>> | '*';
 type SelectColumns<T> = ReturnColumns<T>;
 
-type CreateEntity<T> = Omit<T, 'id' | 'created_at' | 'updated_at'>;
+type CreateEntity<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 
 export abstract class KnexRepository<T> implements BaseRepository<T> {
 	protected abstract tableName: string;
@@ -30,19 +30,24 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 		return this.knex(this.tableName);
 	}
 
-	async create(data: CreateEntity<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
-		return this.qb
+	protected getQueryBuilder(trx?: Knex.Transaction): Knex.QueryBuilder {
+		return trx ? trx(this.tableName) : this.knex(this.tableName);
+	}
+
+	async create(data: CreateEntity<T>, returning: ReturnColumns<T> = '*', trx?: Knex.Transaction): Promise<T> {
+		return this.getQueryBuilder(trx)
 			.insert(data)
 			.returning(returning)
 			.then((rows) => rows[0]);
 	}
 
-	async update(id: string | number, item: Partial<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
+	async update(where: string | number | Partial<T>, item: Partial<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
+		const whereClause = typeof where === 'object' ? where : { id: where };
 		return this.qb
-			.where({ id: id })
+			.where(whereClause)
 			.update({
 				...item,
-				updated_at: new Date(),
+				updatedAt: new Date(),
 			})
 			.returning(returning)
 			.then((rows) => rows[0]);
@@ -72,7 +77,7 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 		return this.qb
 			.select(select)
 			.from(this.tableName)
-			.then((rows) => rows as T[]);
+			.then((rows) => rows);
 	}
 }
 

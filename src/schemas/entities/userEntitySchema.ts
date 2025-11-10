@@ -4,8 +4,9 @@ export const userEntitySchema = z.object({
 	id: z.number().nonnegative(),
 	username: z.string().nonempty('Field cannot be empty!'),
 	password: z.string().nonempty('Field cannot be empty!'),
-	created_at: z.coerce.date(),
-	updated_at: z.coerce.date(),
+	email: z.string().nonempty('Field cannot be empty!'),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
 });
 
 export type UserEntity = z.infer<typeof userEntitySchema>;

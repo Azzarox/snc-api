@@ -8,7 +8,17 @@ export class UserRepository extends KnexRepository<UserEntity> {
 		super(knex);
 	}
 
-	async getByUsername(username: string, select: SelectColumns<UserEntity> = '*'): Promise<UserEntity | null> {
+	async getByUsername(
+		username: string,
+		select: SelectColumns<UserEntity> = ['id', 'username', 'createdAt', 'updatedAt']
+	): Promise<UserEntity | null> {
 		return super.findOneBy({ username }, select);
+	}
+
+	async getByEmail(
+		email: string,
+		select: SelectColumns<UserEntity> = ['id', 'username', 'createdAt', 'updatedAt']
+	): Promise<UserEntity | null> {
+		return super.findOneBy({ email }, select);
 	}
 }
