@@ -1,11 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
-import * as bcrypt from 'bcryptjs';
 import { envConfig } from '../../../config/envConfig';
 
 import { createToken } from '../../utils/createToken';
 import { withTransaction } from '../../utils/withTransaction';
-import { UserRepository, usersRepository } from '../../repositories';
+import { usersRepository } from '../../repositories';
 import { RegisterPayload } from '../../schemas/auth/registerSchema';
 
 import { UserEntity } from '../../schemas/entities/userEntitySchema';

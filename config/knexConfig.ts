@@ -1,6 +1,6 @@
 import knex from 'knex';
 import dotenv from 'dotenv';
-import {  envConfig  } from './envConfig';
+import { envConfig } from './envConfig';
 import knexStringcase from 'knex-stringcase';
 
 dotenv.config();
