@@ -12,7 +12,7 @@ export const userProfileEntitySchema = z.object({
 	avatarStorageKey: z.string().nullable().optional(),
 	coverUrl: z.string().nullable().optional(),
 	coverStorageKey: z.string().nullable().optional(),
-	
+
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 });

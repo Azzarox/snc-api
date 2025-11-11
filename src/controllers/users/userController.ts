@@ -1,5 +1,5 @@
 import { Context } from 'koa';
-import { FailResponse, SuccessResponse } from '../../common/response/Response';
+import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '../../services/userService';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';

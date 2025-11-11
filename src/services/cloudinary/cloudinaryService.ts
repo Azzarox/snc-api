@@ -6,7 +6,7 @@ export interface UploadResult {
 	publicId: string;
 }
 
-const APP_NAME = 'stringhub/'
+const APP_NAME = 'stringhub/';
 
 export const uploadImage = (fileBuffer: Buffer, folderPath: string): Promise<UploadResult> => {
 	return new Promise((resolve, reject) => {
