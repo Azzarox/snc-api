@@ -34,9 +34,17 @@ const uploadAvatar = async (ctx: Context) => {
 	ctx.body = response;
 };
 
+const removeAvatar = async (ctx: Context) => {
+	const avatarUrlData = await userService.removeAvatar(ctx.state.user.id);
+	const response = new SuccessResponse(StatusCodes.OK, 'Avatar removed successfully', avatarUrlData);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
 export const userController = {
 	getCurrentUserProfile,
 	updateCurrentUserProfile,
 	getAllUsers,
 	uploadAvatar,
+	removeAvatar,
 };

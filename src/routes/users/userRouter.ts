@@ -20,3 +20,4 @@ userRouter.patch(
 );
 
 userRouter.put('/profile/avatar', authMiddleware, uploadSingleImage('image'), userController.uploadAvatar);
+userRouter.delete('/profile/avatar', authMiddleware, userController.removeAvatar);
