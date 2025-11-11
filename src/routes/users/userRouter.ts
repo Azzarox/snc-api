@@ -19,4 +19,4 @@ userRouter.patch(
 	userController.updateCurrentUserProfile
 );
 
-userRouter.put('/profile/avatar', authMiddleware, uploadSingleImage('avatar'), userController.uploadAvatar);
+userRouter.put('/profile/avatar', authMiddleware, uploadSingleImage('image'), userController.uploadAvatar);
