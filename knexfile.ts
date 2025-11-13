@@ -13,8 +13,7 @@ const seeds = {
 
 const knexConfig: { [key: string]: Knex.Config } = {
 	development: {
-		client: knexSetup.client,
-		connection: knexSetup.connection,
+		...knexSetup,
 		pool: {
 			min: 2,
 			max: 10,
