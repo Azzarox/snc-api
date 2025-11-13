@@ -3,6 +3,7 @@ import { userProfilesRepository, usersRepository } from '../repositories';
 import { CreateEntity } from '../repositories/KnexRepository';
 import { UpdateUserProfilePayload, UserProfilePayload } from '../schemas/auth/userProfileSchema';
 import { UserProfileEntity } from '../schemas/entities/userProfileEntitySchema';
+import { ImageCropPayload } from '../schemas/common/imageCropSchema';
 import { cloudinaryService } from './cloudinary/cloudinaryService';
 import multer from '@koa/multer';
 import { CustomHttpError } from '../common/errors/CustomHttpError';
@@ -70,7 +71,7 @@ const uploadAvatar = async (userId: number, file: multer.File) => {
 	return updatedProfile;
 };
 
-const uploadCover = async (userId: number, file: multer.File) => {
+const uploadCover = async (userId: number, file: multer.File, cropData?: ImageCropPayload) => {
 	if (!file) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'No uploaded file!');
 	}
@@ -90,7 +91,11 @@ const uploadCover = async (userId: number, file: multer.File) => {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
 	}
 
-	const result = await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/cover`);
+	const cropParams = cropData?.cropX !== undefined
+		? { x: cropData.cropX, y: cropData.cropY!, width: cropData.cropWidth!, height: cropData.cropHeight! }
+		: undefined;
+
+	const result = await cloudinaryService.uploadCoverImage(file.buffer, `/user/${user.username}/cover`, cropParams);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },

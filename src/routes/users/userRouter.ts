@@ -2,6 +2,7 @@ import Router from '@koa/router';
 import { authMiddleware } from '../../middlewares/authMiddleware';
 import { userController } from '../../controllers/users/userController';
 import { updateUserProfileSchema } from '../../schemas/auth/userProfileSchema';
+import { imageCropSchema } from '../../schemas/common/imageCropSchema';
 import { validate } from '../../middlewares/validationMiddleware';
 import { uploadSingleImage } from '../../middlewares/uploadMiddleware';
 
@@ -22,5 +23,5 @@ userRouter.patch(
 userRouter.put('/profile/avatar', authMiddleware, uploadSingleImage('image'), userController.uploadAvatar);
 userRouter.delete('/profile/avatar', authMiddleware, userController.removeAvatar);
 
-userRouter.put('/profile/cover', authMiddleware, uploadSingleImage('image'), userController.uploadCover);
+userRouter.put('/profile/cover', authMiddleware, uploadSingleImage('image'), validate({ body: imageCropSchema }), userController.uploadCover);
 userRouter.delete('/profile/cover', authMiddleware, userController.removeCover);

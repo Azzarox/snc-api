@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { userService } from '../../services/userService';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
 import { UpdateUserProfilePayload } from '../../schemas/auth/userProfileSchema';
+import { ImageCropPayload } from '../../schemas/common/imageCropSchema';
 import { usersRepository } from '../../repositories';
 
 const getCurrentUserProfile = async (ctx: Context) => {
@@ -42,9 +43,10 @@ const removeAvatar = async (ctx: Context) => {
 	ctx.body = response;
 };
 
-const uploadCover = async (ctx: Context) => {
+const uploadCover = async (ctx: ValidatedContext<ImageCropPayload>) => {
 	const file = ctx.request.file;
-	const coverUrlData = await userService.uploadCover(ctx.state.user.id, file);
+	const cropData = ctx.request.body;
+	const coverUrlData = await userService.uploadCover(ctx.state.user.id, file, cropData);
 	const response = new SuccessResponse(StatusCodes.OK, 'Cover uploaded successfully', coverUrlData);
 	ctx.status = response.status;
 	ctx.body = response;
