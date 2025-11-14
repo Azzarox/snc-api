@@ -29,14 +29,14 @@ const getAllUsers = async (ctx: Context) => {
 
 const uploadAvatar = async (ctx: Context) => {
 	const file = ctx.request.file;
-	const avatarUrlData = await userService.uploadAvatar(ctx.state.user.id, file);
+	const avatarUrlData = await userService.uploadImage(ctx.state.user.id, file, 'avatar');
 	const response = new SuccessResponse(StatusCodes.OK, 'Avatar uploaded successfully', avatarUrlData);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const removeAvatar = async (ctx: Context) => {
-	const avatarUrlData = await userService.removeAvatar(ctx.state.user.id);
+	const avatarUrlData = await userService.removeImage(ctx.state.user.id, 'avatar');
 	const response = new SuccessResponse(StatusCodes.OK, 'Avatar removed successfully', avatarUrlData);
 	ctx.status = response.status;
 	ctx.body = response;
@@ -45,14 +45,14 @@ const removeAvatar = async (ctx: Context) => {
 const uploadCover = async (ctx: ValidatedContext<ImageCropPayload>) => {
 	const file = ctx.request.file;
 	const cropData = ctx.request.body;
-	const coverUrlData = await userService.uploadCover(ctx.state.user.id, file, cropData);
+	const coverUrlData = await userService.uploadImage(ctx.state.user.id, file, 'cover', cropData);
 	const response = new SuccessResponse(StatusCodes.OK, 'Cover uploaded successfully', coverUrlData);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const removeCover = async (ctx: Context) => {
-	const coverUrlData = await userService.removeCover(ctx.state.user.id);
+	const coverUrlData = await userService.removeImage(ctx.state.user.id, 'cover');
 	const response = new SuccessResponse(StatusCodes.OK, 'Cover removed successfully', coverUrlData);
 	ctx.status = response.status;
 	ctx.body = response;

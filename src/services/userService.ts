@@ -11,6 +11,8 @@ import { StatusCodes } from 'http-status-codes';
 import { generateDefaultAvatarUrl } from '../utils/generateAvatarImage';
 import { generateDefaultCoverUrl } from '../utils/generateCoverImage';
 
+type ImageType = 'avatar' | 'cover';
+
 const getAllUsers = async () => {
 	return await usersRepository.getAll(['id', 'username', 'createdAt', 'updatedAt']);
 };
@@ -40,19 +42,23 @@ const updateUserProfile = async (userId: number, payload: UpdateUserProfilePaylo
 	return await userProfilesRepository.update({ userId: userId }, payload);
 };
 
-const uploadAvatar = async (userId: number, file: multer.File) => {
+const uploadImage = async (userId: number, file: multer.File, imageType: ImageType, cropData?: ImageCropPayload) => {
 	if (!file) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'No uploaded file!');
 	}
 
-	const profile = await userProfilesRepository.getCurrentUserProfile(userId, 'avatarStorageKey');
+	const storageKeyField = imageType === 'avatar' ? 'avatarStorageKey' : 'coverStorageKey';
+	const urlField = imageType === 'avatar' ? 'avatarUrl' : 'coverUrl';
+	const folderPath = imageType === 'avatar' ? 'avatar' : 'cover';
+
+	const profile = await userProfilesRepository.getCurrentUserProfile(userId, storageKeyField);
 
 	if (!profile) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
 	}
 
-	if (profile.avatarStorageKey) {
-		await cloudinaryService.deleteImage(profile.avatarStorageKey);
+	if (profile[storageKeyField]) {
+		await cloudinaryService.deleteImage(profile[storageKeyField]);
 	}
 
 	const user = await usersRepository.findOneBy({ id: userId }, 'username');
@@ -60,91 +66,41 @@ const uploadAvatar = async (userId: number, file: multer.File) => {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
 	}
 
-	const result = await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/avatar`);
+	const result =
+		imageType === 'avatar'
+			? await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/${folderPath}`)
+			: await cloudinaryService.uploadCoverImage(file.buffer, `/user/${user.username}/${folderPath}`, cropData?.croppedAreaPixels);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
-		{ avatarUrl: result.url, avatarStorageKey: result.publicId },
-		'avatarUrl'
+		{ [urlField]: result.url, [storageKeyField]: result.publicId },
+		urlField
 	);
 
 	return updatedProfile;
 };
 
-const uploadCover = async (userId: number, file: multer.File, cropData?: ImageCropPayload) => {
-	if (!file) {
-		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'No uploaded file!');
-	}
+const removeImage = async (userId: number, imageType: ImageType) => {
+	const storageKeyField = imageType === 'avatar' ? 'avatarStorageKey' : 'coverStorageKey';
+	const urlField = imageType === 'avatar' ? 'avatarUrl' : 'coverUrl';
 
-	const profile = await userProfilesRepository.getCurrentUserProfile(userId, 'coverStorageKey');
+	const profile = await userProfilesRepository.getCurrentUserProfile(userId, storageKeyField);
 
 	if (!profile) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
 	}
 
-	if (profile.coverStorageKey) {
-		await cloudinaryService.deleteImage(profile.coverStorageKey);
+	if (profile[storageKeyField]) {
+		await cloudinaryService.deleteImage(profile[storageKeyField]);
 	}
 
-	const user = await usersRepository.findOneBy({ id: userId }, 'username');
-	if (!user) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
-	}
-
-	const result = await cloudinaryService.uploadCoverImage(
-		file.buffer,
-		`/user/${user.username}/cover`,
-		cropData?.croppedAreaPixels
-	);
+	const defaultUrl = imageType === 'avatar' ? generateDefaultAvatarUrl(userId) : generateDefaultCoverUrl(userId);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
-		{ coverUrl: result.url, coverStorageKey: result.publicId },
-		'coverUrl'
+		{ [urlField]: defaultUrl, [storageKeyField]: null },
+		[urlField]
 	);
-
-	return updatedProfile;
-};
-
-const removeAvatar = async (userId: number) => {
-	const profile = await userProfilesRepository.getCurrentUserProfile(userId, 'avatarStorageKey');
-
-	if (!profile) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
-	}
-
-	if (profile.avatarStorageKey) {
-		await cloudinaryService.deleteImage(profile.avatarStorageKey);
-	}
-
-	const defaultAvatarUrl = generateDefaultAvatarUrl(userId);
-
-	const updatedProfile = await userProfilesRepository.update(
-		{ userId },
-		{ avatarUrl: defaultAvatarUrl, avatarStorageKey: null },
-		['avatarUrl', 'avatarStorageKey']
-	);
-
-	return updatedProfile;
-};
-
-const removeCover = async (userId: number) => {
-	const profile = await userProfilesRepository.getCurrentUserProfile(userId, 'coverStorageKey');
-
-	if (!profile) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
-	}
-
-	if (profile.coverStorageKey) {
-		await cloudinaryService.deleteImage(profile.coverStorageKey);
-	}
-
-	const defaultCoverUrl = generateDefaultCoverUrl(userId);
-
-	const updatedProfile = await userProfilesRepository.update({ userId }, { coverUrl: defaultCoverUrl, coverStorageKey: null }, [
-		'coverUrl',
-		'coverStorageKey',
-	]);
 
 	return updatedProfile;
 };
@@ -154,8 +110,6 @@ export const userService = {
 	getCurrentUserProfile,
 	createUserProfile,
 	updateUserProfile,
-	uploadAvatar,
-	removeAvatar,
-	uploadCover,
-	removeCover,
+	uploadImage,
+	removeImage,
 };
