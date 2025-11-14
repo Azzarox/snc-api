@@ -48,18 +48,18 @@ export const cloudinaryService = {
 							width: cropParams.width,
 							height: cropParams.height,
 						},
-						{ width: 2000, crop: 'scale' },
+						{ width: 1600, crop: 'scale' },
 						{ quality: 'auto' },
 						{ fetch_format: 'auto' },
 					]
-				: [{ width: 2000, crop: 'limit' }, { quality: 'auto' }, { fetch_format: 'auto' }];
+				: [{ width: 1600, crop: 'limit' }, { quality: 'auto' }, { fetch_format: 'auto' }];
 
 			const uploadStream = cloudinary.uploader.upload_stream(
 				{
 					folder: `${MAIN_FOLDER}${folderPath}`,
 					resource_type: 'image',
 					eager: transformation,
-					eager_async: false,
+					eager_async: true,
 				},
 				(error, result: UploadApiResponse | undefined) => {
 					if (error || !result) {
