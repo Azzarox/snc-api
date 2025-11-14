@@ -91,12 +91,11 @@ const uploadCover = async (userId: number, file: multer.File, cropData?: ImageCr
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
 	}
 
-	const cropParams =
-		cropData?.cropX !== undefined
-			? { x: cropData.cropX, y: cropData.cropY!, width: cropData.cropWidth!, height: cropData.cropHeight! }
-			: undefined;
-
-	const result = await cloudinaryService.uploadCoverImage(file.buffer, `/user/${user.username}/cover`, cropParams);
+	const result = await cloudinaryService.uploadCoverImage(
+		file.buffer,
+		`/user/${user.username}/cover`,
+		cropData?.croppedAreaPixels
+	);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
