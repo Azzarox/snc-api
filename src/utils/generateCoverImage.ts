@@ -1,4 +1,3 @@
-
 import GeoPattern from 'geopattern';
 
 export const generateDefaultCoverUrl = (userId: number): string => {

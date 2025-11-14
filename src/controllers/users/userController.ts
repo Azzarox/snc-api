@@ -5,7 +5,6 @@ import { userService } from '../../services/userService';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
 import { UpdateUserProfilePayload } from '../../schemas/auth/userProfileSchema';
 import { ImageCropPayload } from '../../schemas/common/imageCropSchema';
-import { usersRepository } from '../../repositories';
 
 const getCurrentUserProfile = async (ctx: Context) => {
 	const profile = await userService.getCurrentUserProfile(ctx.state.user.id);
@@ -52,14 +51,12 @@ const uploadCover = async (ctx: ValidatedContext<ImageCropPayload>) => {
 	ctx.body = response;
 };
 
-
 const removeCover = async (ctx: Context) => {
 	const coverUrlData = await userService.removeCover(ctx.state.user.id);
 	const response = new SuccessResponse(StatusCodes.OK, 'Cover removed successfully', coverUrlData);
 	ctx.status = response.status;
 	ctx.body = response;
 };
-
 
 export const userController = {
 	getCurrentUserProfile,
