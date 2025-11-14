@@ -10,7 +10,7 @@ import { RegisterPayload } from '../../schemas/auth/registerSchema';
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 import { LoginPayload } from '../../schemas/auth/loginSchema';
 import { UserProfilePayload } from '../../schemas/auth/userProfileSchema';
-import { userService } from '../userService';
+import { userProfileService } from '../user/profile/userProfileService';
 import { User } from '../../types/koa';
 import { UserProfileEntity } from '../../schemas/entities/userProfileEntitySchema';
 import { CreateEntity } from '../../repositories/KnexRepository';
@@ -45,7 +45,7 @@ const registerUser = async (payload: RegisterPayload) => {
 			description: payload.description,
 		};
 
-		const profile: UserProfileEntity = await userService.createUserProfile(newUser.id, profilePayload, trx);
+		const profile: UserProfileEntity = await userProfileService.createUserProfile(newUser.id, profilePayload, trx);
 
 		return {
 			id: newUser.id,
