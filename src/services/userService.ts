@@ -11,7 +11,7 @@ import { StatusCodes } from 'http-status-codes';
 import { generateDefaultAvatarUrl } from '../utils/generateAvatarImage';
 import { generateDefaultCoverUrl } from '../utils/generateCoverImage';
 
-type ImageType = 'avatar' | 'cover';
+type ProfileImageType = 'avatar' | 'cover';
 
 const getAllUsers = async () => {
 	return await usersRepository.getAll(['id', 'username', 'createdAt', 'updatedAt']);
@@ -42,7 +42,7 @@ const updateUserProfile = async (userId: number, payload: UpdateUserProfilePaylo
 	return await userProfilesRepository.update({ userId: userId }, payload);
 };
 
-const uploadImage = async (userId: number, file: multer.File, imageType: ImageType, cropData?: ImageCropPayload) => {
+const uploadImage = async (userId: number, file: multer.File, imageType: ProfileImageType, cropData?: ImageCropPayload) => {
 	if (!file) {
 		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'No uploaded file!');
 	}
@@ -80,7 +80,7 @@ const uploadImage = async (userId: number, file: multer.File, imageType: ImageTy
 	return updatedProfile;
 };
 
-const removeImage = async (userId: number, imageType: ImageType) => {
+const removeImage = async (userId: number, imageType: ProfileImageType) => {
 	const storageKeyField = imageType === 'avatar' ? 'avatarStorageKey' : 'coverStorageKey';
 	const urlField = imageType === 'avatar' ? 'avatarUrl' : 'coverUrl';
 
