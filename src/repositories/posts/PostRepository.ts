@@ -7,6 +7,18 @@ export type EnrichedPost = PostEntity & Pick<UserEntity, 'username'>;
 export class PostRepository extends KnexRepository<PostEntity> {
 	protected tableName = 'posts';
 
+	private buildEnrichedSelect(select: SelectColumns<PostEntity>, sourceTable: string): string[] {
+		const postColumns = select === '*'
+			? `${sourceTable}.*`
+			: Array.isArray(select)
+				? select.map(col => `${sourceTable}.${String(col)}`)
+				: `${sourceTable}.${select}`;
+
+		return Array.isArray(postColumns)
+			? [...postColumns, 'users.username']
+			: [postColumns, 'users.username'];
+	}
+
 	private query(select: SelectColumns<PostEntity> = '*') {
 		const postColumns = select === '*' ? `${this.tableName}.*` : select;
 
@@ -25,15 +37,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async create(data: CreateEntity<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost> {
-		const postColumns = select === '*'
-			? 'inserted_post.*'
-			: Array.isArray(select)
-				? select.map(col => `inserted_post.${String(col)}`)
-				: `inserted_post.${select}`;
-
-		const selectColumns = Array.isArray(postColumns)
-			? [...postColumns, 'users.username']
-			: [postColumns, 'users.username'];
+		const selectColumns = this.buildEnrichedSelect(select, 'inserted_post');
 
 		const enrichedPost = await this.knex
 			.with('inserted_post', (qb) => {
@@ -52,15 +56,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async update(id: number, data: Partial<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost> {
-		const postColumns = select === '*'
-			? 'updated_post.*'
-			: Array.isArray(select)
-				? select.map(col => `updated_post.${String(col)}`)
-				: `updated_post.${select}`;
-
-		const selectColumns = Array.isArray(postColumns)
-			? [...postColumns, 'users.username']
-			: [postColumns, 'users.username'];
+		const selectColumns = this.buildEnrichedSelect(select, 'updated_post');
 
 		const enrichedPost = await this.knex
 			.with('updated_post', (qb) => {

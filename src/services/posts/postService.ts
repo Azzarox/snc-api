@@ -17,7 +17,6 @@ const getById = async (id: number) => {
 };
 
 const createPost = async (userId: number, payload: CreatePostPayload) => {
-	// return await postsRepository.create({ ...payload, userId }, ['id', 'title', 'content']);
 	return await postsRepository.create({ ...payload, userId })
 };
 
