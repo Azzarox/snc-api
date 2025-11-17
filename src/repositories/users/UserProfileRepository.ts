@@ -28,7 +28,7 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 		const result = await super.qb
 			.select(select)
 			// .select('users.email', 'users.username')
-			// .leftJoin('users', `${this.tableName}.userId`, 'users.id')
+			// .innerJoin('users', `${this.tableName}.userId`, 'users.id')
 			.where({ [`${this.tableName}.userId`]: userId })
 			.first();
 
