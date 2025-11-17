@@ -13,6 +13,6 @@ const router = new Router({
 router.use(authRouter.routes()).use(authRouter.allowedMethods());
 router.use(userRouter.routes()).use(userRouter.allowedMethods());
 router.use(postRouter.routes()).use(postRouter.allowedMethods());
-router.get('/comments', authMiddleware, commentController.getAllComments)
+router.get('/comments', authMiddleware, commentController.getAllComments);
 
 export default router;

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
 import { commentsRepository, postsRepository } from '../../repositories';
-import { CreateCommentPayload, UpdateCommentPayload, updateCommentSchema } from '../../schemas/comments/createCommentSchema';
+import { CreateCommentPayload, UpdateCommentPayload } from '../../schemas/comments/createCommentSchema';
 
 const createComment = async (userId: number, postId: number, payload: CreateCommentPayload) => {
 	return await commentsRepository.create({ userId, postId, ...payload });
@@ -19,7 +19,7 @@ const updateComment = async (userId: number, postId: number, commentId: number, 
 	}
 
 	if (comment.userId !== userId) {
-		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'Comment doesn\'t belong to this user!');
+		throw new CustomHttpError(StatusCodes.BAD_REQUEST, "Comment doesn't belong to this user!");
 	}
 
 	return await commentsRepository.update({ id: commentId, postId, userId }, payload);

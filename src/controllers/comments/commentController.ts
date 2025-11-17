@@ -1,4 +1,3 @@
-import z from 'zod';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
 import { CreateCommentPayload, UpdateCommentPayload } from '../../schemas/comments/createCommentSchema';
 import { CommentParams } from '../../schemas/comments/commentParamSchema';

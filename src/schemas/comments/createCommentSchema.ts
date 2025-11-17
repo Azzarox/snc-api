@@ -1,5 +1,4 @@
 import z from 'zod';
-import { updatePostSchema } from '../posts/updatePostSchema';
 
 export const createCommentSchema = z.object({
 	content: z.string().min(1, 'Cannot be empty!'),
