@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
-import { PostRepository, postsRepository } from '../../repositories';
+import { postsRepository } from '../../repositories';
 import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 
@@ -17,7 +17,7 @@ const getById = async (id: number) => {
 };
 
 const createPost = async (userId: number, payload: CreatePostPayload) => {
-	return await postsRepository.create({ ...payload, userId })
+	return await postsRepository.create({ ...payload, userId });
 };
 
 const deletePost = async (userId: number, postId: number) => {

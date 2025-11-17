@@ -1,4 +1,4 @@
-import { CreateEntity, KnexRepository, ReturnColumns, SelectColumns } from '../KnexRepository';
+import { CreateEntity, KnexRepository, SelectColumns } from '../KnexRepository';
 import { PostEntity } from '../../schemas/entities/postEntitySchema';
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 
@@ -8,15 +8,14 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	protected tableName = 'posts';
 
 	private buildEnrichedSelect(select: SelectColumns<PostEntity>, sourceTable: string): string[] {
-		const postColumns = select === '*'
-			? `${sourceTable}.*`
-			: Array.isArray(select)
-				? select.map(col => `${sourceTable}.${String(col)}`)
-				: `${sourceTable}.${select}`;
+		const postColumns =
+			select === '*'
+				? `${sourceTable}.*`
+				: Array.isArray(select)
+					? select.map((col) => `${sourceTable}.${String(col)}`)
+					: `${sourceTable}.${select}`;
 
-		return Array.isArray(postColumns)
-			? [...postColumns, 'users.username']
-			: [postColumns, 'users.username'];
+		return Array.isArray(postColumns) ? [...postColumns, 'users.username'] : [postColumns, 'users.username'];
 	}
 
 	private query(select: SelectColumns<PostEntity> = '*') {

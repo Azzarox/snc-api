@@ -1,11 +1,10 @@
 import { Context } from 'koa';
-import { postsRepository } from '../../repositories';
 import { SuccessResponse } from '../../common/response/Response';
 import { StatusCodes } from 'http-status-codes';
 import { ValidatedContext } from '../../middlewares/validationMiddleware';
-import { CreatePostPayload, createPostSchema } from '../../schemas/posts/createPostSchema';
+import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { postService } from '../../services/posts/postService';
-import { GenericParams, paramsSchema } from '../../schemas/common/paramsSchema';
+import { GenericParams } from '../../schemas/common/paramsSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 
 const getById = async (ctx: ValidatedContext<never, GenericParams>) => {
@@ -45,7 +44,7 @@ const updatePost = async (ctx: ValidatedContext<UpdatePostPayload, GenericParams
 
 export const postController = {
 	getAll,
-    getById,
+	getById,
 	createPost,
 	deletePost,
 	updatePost,
