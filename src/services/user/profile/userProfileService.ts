@@ -16,11 +16,14 @@ export type ProfileImageType = 'avatar' | 'cover';
 const PROFILE_IMAGE_FIELDS = {
 	avatar: { storageKey: 'avatarStorageKey', url: 'avatarUrl', folder: 'avatar' },
 	cover: { storageKey: 'coverStorageKey', url: 'coverUrl', folder: 'cover' },
-} as const satisfies Record<ProfileImageType, {
-	storageKey: keyof UserProfileEntity;
-	url: keyof UserProfileEntity;
-	folder: string;
-}>;
+} as const satisfies Record<
+	ProfileImageType,
+	{
+		storageKey: keyof UserProfileEntity;
+		url: keyof UserProfileEntity;
+		folder: string;
+	}
+>;
 
 const getCurrentUserProfile = async (id: number) => {
 	return await userProfilesRepository.getCurrentUserProfile(id);
@@ -76,7 +79,11 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 	const result =
 		imageType === 'avatar'
 			? await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/${folder}`)
-			: await cloudinaryService.uploadCoverImage(file.buffer, `/user/${user.username}/${folder}`, cropData?.croppedAreaPixels);
+			: await cloudinaryService.uploadCoverImage(
+					file.buffer,
+					`/user/${user.username}/${folder}`,
+					cropData?.croppedAreaPixels
+				);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
@@ -111,11 +118,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 
 	const defaultUrl = imageType === 'avatar' ? generateDefaultAvatarUrl(userId) : generateDefaultCoverUrl(userId);
 
-	const updatedProfile = await userProfilesRepository.update(
-		{ userId },
-		{ [url]: defaultUrl, [storageKey]: null },
-		[url]
-	);
+	const updatedProfile = await userProfilesRepository.update({ userId }, { [url]: defaultUrl, [storageKey]: null }, [url]);
 
 	return updatedProfile;
 };
