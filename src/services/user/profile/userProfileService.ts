@@ -43,7 +43,7 @@ const createUserProfile = async (
 		avatarUrl: defaultAvatarUrl,
 		avatarStorageKey: null,
 		coverUrl: defaultCoverUrl,
-		coverStorageKey: null
+		coverStorageKey: null,
 	};
 
 	return await userProfilesRepository.create(entity, '*', trx);
