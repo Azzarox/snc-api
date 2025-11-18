@@ -6,9 +6,10 @@ import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { postService } from '../../services/posts/postService';
 import { GenericParams } from '../../schemas/common/paramsSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
+import { GetPostQuery } from '../../schemas/posts/getPostQuerySchema';
 
-const getById = async (ctx: ValidatedContext<never, GenericParams>) => {
-	const postDetails = await postService.getById(ctx.params.id);
+const getById = async (ctx: ValidatedContext<never, GenericParams, GetPostQuery>) => {
+	const postDetails = await postService.getById(ctx.params.id, ctx.query.includeComments === 'true');
 	const response = new SuccessResponse(StatusCodes.OK, null, postDetails);
 	ctx.status = response.status;
 	ctx.body = response;

@@ -13,8 +13,8 @@ const getAllWithComments = async () => {
 	return await postsRepository.getAllWithComments();
 };
 
-const getById = async (id: number) => {
-	const post = await postsRepository.getById(id);
+const getById = async (id: number, includeComments = false) => {
+	const post = await postsRepository.getById(id, includeComments);
 
 	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${id} not found!`);
 

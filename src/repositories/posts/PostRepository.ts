@@ -20,6 +20,38 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return postColumns;
 	}
 
+	private buildPostsWithCommentsQuery(select: SelectColumns<PostEntity> = '*') {
+		const postColumns = this.buildPostColumnsSelect(select, 'posts');
+
+		return this.knex
+			.select(
+				...postColumns,
+				'users.username as username',
+				this.knex.raw(`
+					COALESCE(
+						JSON_AGG(
+							JSON_BUILD_OBJECT(
+								'id', comments.id,
+								'userId', comments.user_id,
+								'postId', comments.post_id,
+								'content', comments.content,
+								'username', comment_users.username,
+								'createdAt', comments.created_at,
+								'updatedAt', comments.updated_at
+							)
+							ORDER BY comments.created_at DESC
+						) FILTER (WHERE comments.id IS NOT NULL),
+						'[]'
+					) as comments
+				`)
+			)
+			.from(this.tableName)
+			.innerJoin('users', 'posts.user_id', 'users.id')
+			.leftJoin('comments', 'posts.id', 'comments.post_id')
+			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
+			.groupBy('posts.id', 'users.username');
+	}
+
 	private query(select: SelectColumns<PostEntity> = '*') {
 		const postColumns = select === '*' ? `${this.tableName}.*` : select;
 
@@ -29,8 +61,16 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			.innerJoin('users', `${this.tableName}.userId`, 'users.id');
 	}
 
-	async getById(id: number, select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost | null> {
-		return this.query(select).where(`${this.tableName}.id`, id).first() ?? null;
+	async getById(
+		id: number,
+		includeComments = false,
+		select: SelectColumns<PostEntity> = '*'
+	): Promise<EnrichedPost | EnrichedPostWithComments | null> {
+		if (!includeComments) {
+			return this.query(select).where(`${this.tableName}.id`, id).first() ?? null;
+		}
+
+		return (await this.buildPostsWithCommentsQuery(select).where('posts.id', id).first()) ?? null;
 	}
 
 	async getAll(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost[]> {
@@ -76,36 +116,6 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async getAllWithComments(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPostWithComments[]> {
-		const postColumns = this.buildPostColumnsSelect(select, 'posts');
-
-		const results = await this.knex
-			.select(
-				...postColumns,
-				'users.username as username',
-				this.knex.raw(`
-					COALESCE(
-						JSON_AGG(
-							JSON_BUILD_OBJECT(
-								'id', comments.id,
-								'userId', comments.user_id,
-								'postId', comments.post_id,
-								'content', comments.content,
-								'username', comment_users.username,
-								'createdAt', comments.created_at,
-								'updatedAt', comments.updated_at
-							)
-							ORDER BY comments.created_at DESC
-						) FILTER (WHERE comments.id IS NOT NULL),
-						'[]'
-					) as comments
-				`)
-			)
-			.from(this.tableName)
-			.innerJoin('users', 'posts.user_id', 'users.id')
-			.leftJoin('comments', 'posts.id', 'comments.post_id')
-			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
-			.groupBy('posts.id', 'users.username');
-
-		return results;
+		return this.buildPostsWithCommentsQuery(select);
 	}
 }
