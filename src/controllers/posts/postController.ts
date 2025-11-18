@@ -21,6 +21,13 @@ const getAll = async (ctx: Context) => {
 	ctx.body = response;
 };
 
+const getAllWithComments = async (ctx: Context) => {
+	const posts = await postService.getAllWithComments();
+	const response = new SuccessResponse(StatusCodes.OK, null, posts);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
 const createPost = async (ctx: ValidatedContext<CreatePostPayload>) => {
 	const post = await postService.createPost(ctx.state.user.id, ctx.request.body);
 	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully created post!', post);
@@ -44,6 +51,7 @@ const updatePost = async (ctx: ValidatedContext<UpdatePostPayload, GenericParams
 
 export const postController = {
 	getAll,
+	getAllWithComments,
 	getById,
 	createPost,
 	deletePost,

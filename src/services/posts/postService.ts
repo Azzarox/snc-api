@@ -9,6 +9,10 @@ const getAll = async () => {
 	return await postsRepository.getAll();
 };
 
+const getAllWithComments = async () => {
+	return await postsRepository.getAllWithComments();
+};
+
 const getById = async (id: number) => {
 	const post = await postsRepository.getById(id);
 
@@ -33,6 +37,7 @@ const updatePost = async (userId: number, postId: number, payload: UpdatePostPay
 
 export const postService = {
 	getAll,
+	getAllWithComments,
 	getById,
 	createPost,
 	deletePost,

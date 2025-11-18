@@ -12,11 +12,11 @@ export const postRouter = new Router({
 });
 
 postRouter.get('/', postController.getAll);
+postRouter.get('/with-comments', postController.getAllWithComments);
 postRouter.get('/:id', authMiddleware, postController.getById);
 postRouter.post('/', authMiddleware, validate({ body: createPostSchema }), postController.createPost);
 postRouter.patch('/:id', authMiddleware, validate({ body: updatePostSchema, params: paramsSchema }), postController.updatePost);
 postRouter.delete('/:id', authMiddleware, validate({ params: paramsSchema }), postController.deletePost);
 
 // Mount comment router under /:id/comments
-// Note: /:id validation should be done inside comment routes
 postRouter.use('/:id/comments', commentRouter.routes(), commentRouter.allowedMethods());
