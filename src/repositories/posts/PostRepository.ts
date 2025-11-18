@@ -65,6 +65,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			.leftJoin('comments', 'posts.id', 'comments.post_id')
 			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
 			.groupBy('posts.id', 'users.username', 'user_profiles.first_name', 'user_profiles.last_name', 'user_profiles.avatar_url');
+			
 	}
 
 	private query(select: SelectColumns<PostEntity> = '*') {
@@ -106,7 +107,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async getAll(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost[]> {
-		return this.query(select);
+		return this.query(select).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
 	async create(data: CreateEntity<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string }> {
@@ -148,6 +149,6 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async getAllWithComments(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPostWithComments[]> {
-		return this.buildPostsWithCommentsQuery(select);
+		return this.buildPostsWithCommentsQuery(select).orderBy('posts.id', 'desc');
 	}
 }
