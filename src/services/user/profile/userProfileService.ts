@@ -60,7 +60,6 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 
 	const { storageKey, url, folder } = PROFILE_IMAGE_FIELDS[imageType];
 
-	// Fetch user and profile in parallel and validate BEFORE any destructive operations
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'username'),
 		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
@@ -74,7 +73,6 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
 	}
 
-	// Now safe to perform destructive operations
 	if (profile[storageKey]) {
 		await cloudinaryService.deleteImage(profile[storageKey]);
 	}
@@ -100,7 +98,6 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 const removeImage = async (userId: number, imageType: ProfileImageType) => {
 	const { storageKey, url } = PROFILE_IMAGE_FIELDS[imageType];
 
-	// Fetch user and profile in parallel and validate BEFORE any destructive operations
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'id'),
 		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
@@ -114,7 +111,6 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, "User doesn't have profile!");
 	}
 
-	// Now safe to perform destructive operations
 	if (profile[storageKey]) {
 		await cloudinaryService.deleteImage(profile[storageKey]);
 	}
