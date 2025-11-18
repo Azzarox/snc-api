@@ -29,7 +29,6 @@ const getAllComments = async (ctx: Context) => {
 	ctx.body = response;
 };
 
-
 const deleteComment = async (ctx: ValidatedContext<never, CommentParams>) => {
 	const comment = await commentService.deleteComment(ctx.state.user.id, ctx.params.id, ctx.params.commentId);
 	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully deleted comment!', comment);

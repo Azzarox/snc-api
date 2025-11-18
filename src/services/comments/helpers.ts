@@ -1,6 +1,6 @@
-import { StatusCodes } from "http-status-codes";
-import { CustomHttpError } from "../../common/errors/CustomHttpError";
-import { commentsRepository, postsRepository } from "../../repositories";
+import { StatusCodes } from 'http-status-codes';
+import { CustomHttpError } from '../../common/errors/CustomHttpError';
+import { commentsRepository, postsRepository } from '../../repositories';
 
 const validateBeforeCommentOperations = async (userId: number, postId: number, commentId: number): Promise<void | never> => {
 	const post = await postsRepository.findOneBy({ id: postId });
@@ -19,5 +19,5 @@ const validateBeforeCommentOperations = async (userId: number, postId: number, c
 };
 
 export const commentServiceHelpers = {
-    validateBeforeCommentOperations,
-}
+	validateBeforeCommentOperations,
+};

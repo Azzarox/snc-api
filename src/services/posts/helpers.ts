@@ -3,7 +3,7 @@ import { CustomHttpError } from '../../common/errors/CustomHttpError';
 import { postsRepository } from '../../repositories';
 
 const validateBeforePostOperations = async (userId: number, postId: number) => {
-	const post = await postsRepository.findOneBy({ id: postId }); 
+	const post = await postsRepository.findOneBy({ id: postId });
 	if (!post) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Post not found!');
 	}

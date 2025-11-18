@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
-import { postsRepository, UserRepository } from '../../repositories';
+import { postsRepository } from '../../repositories';
 import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 import { postServiceHelpers } from './helpers';
