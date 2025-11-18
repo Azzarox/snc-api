@@ -1,9 +1,13 @@
 import { CreateEntity, KnexRepository, SelectColumns } from '../KnexRepository';
 import { PostEntity } from '../../schemas/entities/postEntitySchema';
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
+import { UserProfileEntity } from '../../schemas/entities/userProfileEntitySchema';
 import { CommentEntity } from '../../schemas/entities/commentEntitySchema';
 
-export type EnrichedPost = PostEntity & Pick<UserEntity, 'username'>;
+export type EnrichedPost = PostEntity & {
+	user: Pick<UserEntity, 'username'> & Pick<UserProfileEntity, 'firstName' | 'lastName' | 'avatarUrl'>;
+	commentsCount: number;
+};
 export type EnrichedPostWithComments = EnrichedPost & { comments: CommentEntity[] & Pick<UserEntity, 'username'> };
 
 export class PostRepository extends KnexRepository<PostEntity> {
@@ -26,7 +30,14 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return this.knex
 			.select(
 				...postColumns,
-				'users.username as username',
+				this.knex.raw(`
+					JSON_BUILD_OBJECT(
+						'username', users.username,
+						'firstName', user_profiles.first_name,
+						'lastName', user_profiles.last_name,
+						'avatarUrl', user_profiles.avatar_url
+					) as user
+				`),
 				this.knex.raw(`
 					COALESCE(
 						JSON_AGG(
@@ -43,22 +54,43 @@ export class PostRepository extends KnexRepository<PostEntity> {
 						) FILTER (WHERE comments.id IS NOT NULL),
 						'[]'
 					) as comments
+				`),
+				this.knex.raw(`
+					COUNT(comments.id)::int as comments_count
 				`)
 			)
 			.from(this.tableName)
 			.innerJoin('users', 'posts.user_id', 'users.id')
+			.innerJoin('user_profiles', 'users.id', 'user_profiles.user_id')
 			.leftJoin('comments', 'posts.id', 'comments.post_id')
 			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
-			.groupBy('posts.id', 'users.username');
+			.groupBy('posts.id', 'users.username', 'user_profiles.first_name', 'user_profiles.last_name', 'user_profiles.avatar_url');
 	}
 
 	private query(select: SelectColumns<PostEntity> = '*') {
-		const postColumns = select === '*' ? `${this.tableName}.*` : select;
+		const postColumns = this.buildPostColumnsSelect(select, this.tableName);
 
 		return this.qb
-			.select(postColumns, 'users.username')
+			.select(
+				...postColumns,
+				this.knex.raw(`
+					JSON_BUILD_OBJECT(
+						'username', users.username,
+						'firstName', user_profiles.first_name,
+						'lastName', user_profiles.last_name,
+						'avatarUrl', user_profiles.avatar_url
+					) as user
+				`),
+				this.knex.raw(`
+					COALESCE(
+						(SELECT COUNT(*)::int FROM comments WHERE comments.post_id = ${this.tableName}.id),
+						0
+					) as comments_count
+				`)
+			)
 			.from(this.tableName)
-			.innerJoin('users', `${this.tableName}.userId`, 'users.id');
+			.innerJoin('users', `${this.tableName}.userId`, 'users.id')
+			.innerJoin('user_profiles', 'users.id', 'user_profiles.user_id');
 	}
 
 	async getById(
@@ -77,7 +109,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return this.query(select);
 	}
 
-	async create(data: CreateEntity<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost> {
+	async create(data: CreateEntity<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string }> {
 		const postColumns = this.buildPostColumnsSelect(select, 'inserted_post');
 
 		const enrichedPost = await this.knex
@@ -96,7 +128,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return enrichedPost;
 	}
 
-	async update(id: number, data: Partial<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost> {
+	async update(id: number, data: Partial<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string }> {
 		const postColumns = this.buildPostColumnsSelect(select, 'updated_post');
 
 		const enrichedPost = await this.knex
