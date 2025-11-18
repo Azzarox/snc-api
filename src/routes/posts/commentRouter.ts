@@ -9,3 +9,4 @@ export const commentRouter = new Router();
 
 commentRouter.post('/', authMiddleware, validate({ params: paramsSchema }), commentController.createComment);
 commentRouter.patch('/:commentId', authMiddleware, validate({ params: commentParamsSchema }), commentController.updateComment);
+commentRouter.delete('/:commentId', authMiddleware, validate({ params: commentParamsSchema }), commentController.deleteComment);

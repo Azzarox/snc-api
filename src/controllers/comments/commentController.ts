@@ -10,14 +10,14 @@ import { GenericParams } from '../../schemas/common/paramsSchema';
 
 const createComment = async (ctx: ValidatedContext<CreateCommentPayload, GenericParams>) => {
 	const comment = await commentService.createComment(ctx.state.user.id, ctx.params.id, ctx.request.body);
-	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully added comment to post!', comment);
+	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully added comment!', comment);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const updateComment = async (ctx: ValidatedContext<UpdateCommentPayload, CommentParams>) => {
 	const comment = await commentService.updateComment(ctx.state.user.id, ctx.params.id, ctx.params.commentId, ctx.request.body);
-	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully added comment to post!', comment);
+	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully updated comment!', comment);
 	ctx.status = response.status;
 	ctx.body = response;
 };
@@ -29,8 +29,17 @@ const getAllComments = async (ctx: Context) => {
 	ctx.body = response;
 };
 
+
+const deleteComment = async (ctx: ValidatedContext<never, CommentParams>) => {
+	const comment = await commentService.deleteComment(ctx.state.user.id, ctx.params.id, ctx.params.commentId);
+	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully deleted comment!', comment);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
 export const commentController = {
 	createComment,
 	getAllComments,
 	updateComment,
+	deleteComment,
 };
