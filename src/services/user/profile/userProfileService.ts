@@ -35,12 +35,15 @@ const createUserProfile = async (
 	trx?: Knex.Transaction
 ): Promise<UserProfileEntity> => {
 	const defaultAvatarUrl = generateDefaultAvatarUrl(userId);
+	const defaultCoverUrl = generateDefaultCoverUrl(userId);
 
 	const entity: CreateEntity<UserProfileEntity> = {
 		userId,
 		...payload,
 		avatarUrl: defaultAvatarUrl,
 		avatarStorageKey: null,
+		coverUrl: defaultCoverUrl,
+		coverStorageKey: null
 	};
 
 	return await userProfilesRepository.create(entity, '*', trx);
