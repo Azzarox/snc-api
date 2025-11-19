@@ -46,9 +46,14 @@ export class PostRepository extends KnexRepository<PostEntity> {
 								'userId', comments.user_id,
 								'postId', comments.post_id,
 								'content', comments.content,
-								'username', comment_users.username,
 								'createdAt', comments.created_at,
-								'updatedAt', comments.updated_at
+								'updatedAt', comments.updated_at,
+								'user', JSON_BUILD_OBJECT(
+									'username', comment_users.username,
+									'firstName', comment_profiles.first_name,
+									'lastName', comment_profiles.last_name,
+									'avatarUrl', comment_profiles.avatar_url
+								)
 							)
 							ORDER BY comments.created_at DESC
 						) FILTER (WHERE comments.id IS NOT NULL),
@@ -64,6 +69,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			.innerJoin('user_profiles', 'users.id', 'user_profiles.user_id')
 			.leftJoin('comments', 'posts.id', 'comments.post_id')
 			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
+			.leftJoin('user_profiles as comment_profiles', 'comment_users.id', 'comment_profiles.user_id')
 			.groupBy('posts.id', 'users.username', 'user_profiles.first_name', 'user_profiles.last_name', 'user_profiles.avatar_url');
 			
 	}
