@@ -24,6 +24,9 @@ userRouter.get(
 
 // TODO: Move the profile router to own router .use(userProfileRouter)
 userRouter.get('/profile', authMiddleware, userProfileController.getCurrentUserProfile);
+
+userRouter.get('/:id/profile', authMiddleware, validate({ params: paramsSchema }), userProfileController.getProfileByUserId);
+
 userRouter.patch(
 	'/profile',
 	authMiddleware,

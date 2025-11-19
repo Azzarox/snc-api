@@ -9,7 +9,7 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 		super(knex);
 	}
 
-	async getCurrentUserProfile(
+	async getUserProfile(
 		userId: number,
 		select: SelectColumns<UserProfileEntity> = [
 			'firstName',
@@ -22,13 +22,10 @@ export class UserProfileRepository extends KnexRepository<UserProfileEntity> {
 		]
 	): Promise<
 		| UserProfileEntity
-		// & { email: string }
 		| null
 	> {
 		const result = await super.qb
 			.select(select)
-			// .select('users.email', 'users.username')
-			// .innerJoin('users', `${this.tableName}.userId`, 'users.id')
 			.where({ [`${this.tableName}.userId`]: userId })
 			.first();
 

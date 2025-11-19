@@ -6,9 +6,17 @@ import { ValidatedContext } from '../../../middlewares/validationMiddleware';
 import { UpdateUserProfilePayload } from '../../../schemas/auth/userProfileSchema';
 import { ImageCropPayload } from '../../../schemas/common/imageCropSchema';
 import { handleProfileImageUpload, handleProfileImageRemove } from './helpers/profileImageActions';
+import { GenericParams } from '../../../schemas/common/paramsSchema';
 
 const getCurrentUserProfile = async (ctx: Context) => {
-	const profile = await userProfileService.getCurrentUserProfile(ctx.state.user.id);
+	const profile = await userProfileService.getUserProfile(ctx.state.user.id);
+	const response = new SuccessResponse(StatusCodes.OK, null, profile);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
+const getProfileByUserId = async (ctx: ValidatedContext<never, GenericParams>) => {
+	const profile = await userProfileService.getUserProfile(ctx.params.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, profile);
 	ctx.status = response.status;
 	ctx.body = response;
@@ -39,6 +47,7 @@ const removeCover = async (ctx: Context) => {
 
 export const userProfileController = {
 	getCurrentUserProfile,
+	getProfileByUserId,
 	updateCurrentUserProfile,
 	uploadAvatar,
 	removeAvatar,

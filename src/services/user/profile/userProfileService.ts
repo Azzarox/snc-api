@@ -25,9 +25,10 @@ const PROFILE_IMAGE_FIELDS = {
 	}
 >;
 
-const getCurrentUserProfile = async (id: number) => {
-	return await userProfilesRepository.getCurrentUserProfile(id);
+const getUserProfile = async (id: number) => {
+	return await userProfilesRepository.getUserProfile(id);
 };
+
 
 const createUserProfile = async (
 	userId: number,
@@ -62,7 +63,7 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'username'),
-		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
+		userProfilesRepository.getUserProfile(userId, storageKey),
 	]);
 
 	if (!user) {
@@ -81,10 +82,10 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 		imageType === 'avatar'
 			? await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/${folder}`)
 			: await cloudinaryService.uploadCoverImage(
-					file.buffer,
-					`/user/${user.username}/${folder}`,
-					cropData?.croppedAreaPixels
-				);
+				file.buffer,
+				`/user/${user.username}/${folder}`,
+				cropData?.croppedAreaPixels
+			);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
@@ -100,7 +101,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'id'),
-		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
+		userProfilesRepository.getUserProfile(userId, storageKey),
 	]);
 
 	if (!user) {
@@ -123,7 +124,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 };
 
 export const userProfileService = {
-	getCurrentUserProfile,
+	 getUserProfile,
 	createUserProfile,
 	updateUserProfile,
 	uploadImage,
