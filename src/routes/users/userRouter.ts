@@ -15,7 +15,12 @@ export const userRouter = new Router({
 });
 
 userRouter.get('/', authMiddleware, userController.getAllUsers);
-userRouter.get('/:id/posts', authMiddleware, validate({ params: paramsSchema, query: getPostQuerySchema }), postController.getAllUserPosts);
+userRouter.get(
+	'/:id/posts',
+	authMiddleware,
+	validate({ params: paramsSchema, query: getPostQuerySchema }),
+	postController.getAllUserPosts
+);
 
 // TODO: Move the profile router to own router .use(userProfileRouter)
 userRouter.get('/profile', authMiddleware, userProfileController.getCurrentUserProfile);

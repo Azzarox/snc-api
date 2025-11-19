@@ -170,10 +170,16 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return this.buildPostsWithCommentsQuery(select).orderBy('posts.id', 'desc');
 	}
 
-	async getAllUsersPosts(userId: number, includeComments = false, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string } | EnrichedPostWithComments[]> {
+	async getAllUsersPosts(
+		userId: number,
+		includeComments = false,
+		select: SelectColumns<PostEntity> = '*'
+	): Promise<(PostEntity & { username: string }) | EnrichedPostWithComments[]> {
 		if (includeComments) {
-			return this.buildPostsWithCommentsQuery(select).orderBy(`${this.tableName}.id`, 'desc').where(`${this.tableName}.userId`, userId)
+			return this.buildPostsWithCommentsQuery(select)
+				.orderBy(`${this.tableName}.id`, 'desc')
+				.where(`${this.tableName}.userId`, userId);
 		}
-		return this.query(select).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc')
+		return this.query(select).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc');
 	}
 }
