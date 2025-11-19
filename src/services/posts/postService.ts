@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../../common/errors/CustomHttpError';
-import { postsRepository } from '../../repositories';
+import { postsRepository, usersRepository } from '../../repositories';
 import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 import { postServiceHelpers } from './helpers';
@@ -21,6 +21,14 @@ const getById = async (id: number, includeComments = false) => {
 	return post;
 };
 
+const getAllUserPosts = async (userId: number, includeComments = false) => {
+	const user = await usersRepository.findOneBy({ id: userId });
+	if (!user) {
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
+	}
+	return await postsRepository.getAllUsersPosts(userId, includeComments);
+};
+
 const createPost = async (userId: number, payload: CreatePostPayload) => {
 	return await postsRepository.create({ ...payload, userId });
 };
@@ -39,6 +47,7 @@ export const postService = {
 	getAll,
 	getAllWithComments,
 	getById,
+	getAllUserPosts,
 	createPost,
 	deletePost,
 	updatePost,

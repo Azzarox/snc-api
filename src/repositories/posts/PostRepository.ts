@@ -70,8 +70,13 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			.leftJoin('comments', 'posts.id', 'comments.post_id')
 			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
 			.leftJoin('user_profiles as comment_profiles', 'comment_users.id', 'comment_profiles.user_id')
-			.groupBy('posts.id', 'users.username', 'user_profiles.first_name', 'user_profiles.last_name', 'user_profiles.avatar_url');
-			
+			.groupBy(
+				'posts.id',
+				'users.username',
+				'user_profiles.first_name',
+				'user_profiles.last_name',
+				'user_profiles.avatar_url'
+			);
 	}
 
 	private query(select: SelectColumns<PostEntity> = '*') {
@@ -116,7 +121,10 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return this.query(select).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
-	async create(data: CreateEntity<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string }> {
+	async create(
+		data: CreateEntity<PostEntity>,
+		select: SelectColumns<PostEntity> = '*'
+	): Promise<PostEntity & { username: string }> {
 		const postColumns = this.buildPostColumnsSelect(select, 'inserted_post');
 
 		const enrichedPost = await this.knex
@@ -135,7 +143,11 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return enrichedPost;
 	}
 
-	async update(id: number, data: Partial<PostEntity>, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string }> {
+	async update(
+		id: number,
+		data: Partial<PostEntity>,
+		select: SelectColumns<PostEntity> = '*'
+	): Promise<PostEntity & { username: string }> {
 		const postColumns = this.buildPostColumnsSelect(select, 'updated_post');
 
 		const enrichedPost = await this.knex
@@ -156,5 +168,12 @@ export class PostRepository extends KnexRepository<PostEntity> {
 
 	async getAllWithComments(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPostWithComments[]> {
 		return this.buildPostsWithCommentsQuery(select).orderBy('posts.id', 'desc');
+	}
+
+	async getAllUsersPosts(userId: number, includeComments = false, select: SelectColumns<PostEntity> = '*'): Promise<PostEntity & { username: string } | EnrichedPostWithComments[]> {
+		if (includeComments) {
+			return this.buildPostsWithCommentsQuery(select).orderBy(`${this.tableName}.id`, 'desc').where(`${this.tableName}.userId`, userId)
+		}
+		return this.query(select).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc')
 	}
 }
