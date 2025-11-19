@@ -29,6 +29,13 @@ const getAllComments = async (ctx: Context) => {
 	ctx.body = response;
 };
 
+const getAllPostComments = async (ctx: ValidatedContext<never, GenericParams>) => {
+	const comments = await commentsRepository.getPostComments(ctx.params.id);
+	const response = new SuccessResponse(StatusCodes.OK, null, comments);
+	ctx.status = response.status;
+	ctx.body = response;
+};
+
 const deleteComment = async (ctx: ValidatedContext<never, CommentParams>) => {
 	const comment = await commentService.deleteComment(ctx.state.user.id, ctx.params.id, ctx.params.commentId);
 	const response = new SuccessResponse(StatusCodes.CREATED, 'Successfully deleted comment!', comment);
@@ -38,6 +45,7 @@ const deleteComment = async (ctx: ValidatedContext<never, CommentParams>) => {
 
 export const commentController = {
 	createComment,
+	getAllPostComments,
 	getAllComments,
 	updateComment,
 	deleteComment,
