@@ -9,28 +9,28 @@ import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 import { GetPostQuery } from '../../schemas/posts/getPostQuerySchema';
 
 const getById = async (ctx: ValidatedContext<never, GenericParams, GetPostQuery>) => {
-	const postDetails = await postService.getById(ctx.params.id, ctx.query.includeComments === 'true');
+	const postDetails = await postService.getById(ctx.params.id, ctx.query.includeComments === 'true', ctx.state.user?.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, postDetails);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const getAll = async (ctx: Context) => {
-	const posts = await postService.getAll();
+	const posts = await postService.getAll(ctx.state.user?.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, posts);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const getAllWithComments = async (ctx: Context) => {
-	const posts = await postService.getAllWithComments();
+	const posts = await postService.getAllWithComments(ctx.state.user?.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, posts);
 	ctx.status = response.status;
 	ctx.body = response;
 };
 
 const getAllUserPosts = async (ctx: ValidatedContext<never, GenericParams, GetPostQuery>) => {
-	const userPosts = await postService.getAllUserPosts(ctx.params.id, ctx.query.includeComments === 'true');
+	const userPosts = await postService.getAllUserPosts(ctx.params.id, ctx.query.includeComments === 'true', ctx.state.user?.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, userPosts);
 	ctx.status = response.status;
 	ctx.body = response;

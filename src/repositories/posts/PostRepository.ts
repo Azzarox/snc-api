@@ -8,6 +8,7 @@ export type EnrichedPost = PostEntity & {
 	user: Pick<UserEntity, 'username'> & Pick<UserProfileEntity, 'firstName' | 'lastName' | 'avatarUrl'>;
 	commentsCount: number;
 	likesCount: number;
+	isLikedByCurrentUser: boolean;
 };
 export type EnrichedPostWithComments = EnrichedPost & { comments: CommentEntity[] & Pick<UserEntity, 'username'> };
 
@@ -25,7 +26,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return postColumns;
 	}
 
-	private buildPostsWithCommentsQuery(select: SelectColumns<PostEntity> = '*') {
+	private buildPostsWithCommentsQuery(select: SelectColumns<PostEntity> = '*', currentUserId?: number) {
 		const postColumns = this.buildPostColumnsSelect(select, 'posts');
 
 		return this.knex
@@ -66,7 +67,15 @@ export class PostRepository extends KnexRepository<PostEntity> {
 				`),
 				this.knex.raw(`
 					COUNT(DISTINCT post_likes.user_id)::int as likes_count
-				`)
+				`),
+				currentUserId !== undefined
+					? this.knex.raw(`
+						CASE
+							WHEN bool_or(post_likes.user_id = ?) THEN true
+							ELSE false
+						END as is_liked_by_current_user
+					`, [currentUserId])
+					: this.knex.raw(`false as is_liked_by_current_user`)
 			)
 			.from(this.tableName)
 			.innerJoin('users', 'posts.user_id', 'users.id')
@@ -84,7 +93,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			);
 	}
 
-	private query(select: SelectColumns<PostEntity> = '*') {
+	private query(select: SelectColumns<PostEntity> = '*', currentUserId?: number) {
 		const postColumns = this.buildPostColumnsSelect(select, this.tableName);
 
 		return this.qb
@@ -109,7 +118,19 @@ export class PostRepository extends KnexRepository<PostEntity> {
 						(SELECT COUNT(*)::int FROM post_likes WHERE post_likes.post_id = ${this.tableName}.id),
 						0
 					) as likes_count
-				`)
+				`),
+				currentUserId !== undefined
+					? this.knex.raw(`
+						CASE
+							WHEN EXISTS (
+								SELECT 1 FROM post_likes
+								WHERE post_likes.post_id = ${this.tableName}.id
+								AND post_likes.user_id = ?
+							) THEN true
+							ELSE false
+						END as is_liked_by_current_user
+					`, [currentUserId])
+					: this.knex.raw(`false as is_liked_by_current_user`)
 			)
 			.from(this.tableName)
 			.innerJoin('users', `${this.tableName}.userId`, 'users.id')
@@ -119,17 +140,18 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	async getById(
 		id: number,
 		includeComments = false,
-		select: SelectColumns<PostEntity> = '*'
+		select: SelectColumns<PostEntity> = '*',
+		currentUserId?: number
 	): Promise<EnrichedPost | EnrichedPostWithComments | null> {
 		if (!includeComments) {
-			return this.query(select).where(`${this.tableName}.id`, id).first() ?? null;
+			return this.query(select, currentUserId).where(`${this.tableName}.id`, id).first() ?? null;
 		}
 
-		return (await this.buildPostsWithCommentsQuery(select).where('posts.id', id).first()) ?? null;
+		return (await this.buildPostsWithCommentsQuery(select, currentUserId).where('posts.id', id).first()) ?? null;
 	}
 
-	async getAll(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPost[]> {
-		return this.query(select).orderBy(`${this.tableName}.id`, 'desc');
+	async getAll(select: SelectColumns<PostEntity> = '*', currentUserId?: number): Promise<EnrichedPost[]> {
+		return this.query(select, currentUserId).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
 	async create(
@@ -177,20 +199,21 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return enrichedPost;
 	}
 
-	async getAllWithComments(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPostWithComments[]> {
-		return this.buildPostsWithCommentsQuery(select).orderBy(`${this.tableName}.id`, 'desc');
+	async getAllWithComments(select: SelectColumns<PostEntity> = '*', currentUserId?: number): Promise<EnrichedPostWithComments[]> {
+		return this.buildPostsWithCommentsQuery(select, currentUserId).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
 	async getAllUsersPosts(
 		userId: number,
 		includeComments = false,
-		select: SelectColumns<PostEntity> = '*'
+		select: SelectColumns<PostEntity> = '*',
+		currentUserId?: number
 	): Promise<(PostEntity & { username: string }) | EnrichedPostWithComments[]> {
 		if (includeComments) {
-			return this.buildPostsWithCommentsQuery(select)
+			return this.buildPostsWithCommentsQuery(select, currentUserId)
 				.orderBy(`${this.tableName}.id`, 'desc')
 				.where(`${this.tableName}.userId`, userId);
 		}
-		return this.query(select).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc');
+		return this.query(select, currentUserId).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc');
 	}
 }

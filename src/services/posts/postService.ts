@@ -5,28 +5,28 @@ import { CreatePostPayload } from '../../schemas/posts/createPostSchema';
 import { UpdatePostPayload } from '../../schemas/posts/updatePostSchema';
 import { postServiceHelpers } from './helpers';
 
-const getAll = async () => {
-	return await postsRepository.getAll();
+const getAll = async (currentUserId?: number) => {
+	return await postsRepository.getAll('*', currentUserId);
 };
 
-const getAllWithComments = async () => {
-	return await postsRepository.getAllWithComments();
+const getAllWithComments = async (currentUserId?: number) => {
+	return await postsRepository.getAllWithComments('*', currentUserId);
 };
 
-const getById = async (id: number, includeComments = false) => {
-	const post = await postsRepository.getById(id, includeComments);
+const getById = async (id: number, includeComments = false, currentUserId?: number) => {
+	const post = await postsRepository.getById(id, includeComments, '*', currentUserId);
 
 	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${id} not found!`);
 
 	return post;
 };
 
-const getAllUserPosts = async (userId: number, includeComments = false) => {
+const getAllUserPosts = async (userId: number, includeComments = false, currentUserId?: number) => {
 	const user = await usersRepository.findOneBy({ id: userId });
 	if (!user) {
 		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
 	}
-	return await postsRepository.getAllUsersPosts(userId, includeComments);
+	return await postsRepository.getAllUsersPosts(userId, includeComments, '*', currentUserId);
 };
 
 const createPost = async (userId: number, payload: CreatePostPayload) => {
