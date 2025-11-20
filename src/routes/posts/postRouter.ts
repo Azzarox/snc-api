@@ -7,6 +7,7 @@ import { paramsSchema } from '../../schemas/common/paramsSchema';
 import { updatePostSchema } from '../../schemas/posts/updatePostSchema';
 import { getPostQuerySchema } from '../../schemas/posts/getPostQuerySchema';
 import { commentRouter } from './commentRouter';
+import { likesRouter } from './likesRouter';
 
 export const postRouter = new Router({
 	prefix: '/posts',
@@ -21,3 +22,4 @@ postRouter.delete('/:id', authMiddleware, validate({ params: paramsSchema }), po
 
 // Mount comment router under /:id/comments
 postRouter.use('/:id/comments', commentRouter.routes(), commentRouter.allowedMethods());
+postRouter.use('/:id/likes', likesRouter.routes(), likesRouter.allowedMethods());
