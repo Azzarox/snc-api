@@ -7,6 +7,7 @@ import { CommentEntity } from '../../schemas/entities/commentEntitySchema';
 export type EnrichedPost = PostEntity & {
 	user: Pick<UserEntity, 'username'> & Pick<UserProfileEntity, 'firstName' | 'lastName' | 'avatarUrl'>;
 	commentsCount: number;
+	likesCount: number;
 };
 export type EnrichedPostWithComments = EnrichedPost & { comments: CommentEntity[] & Pick<UserEntity, 'username'> };
 
@@ -62,6 +63,9 @@ export class PostRepository extends KnexRepository<PostEntity> {
 				`),
 				this.knex.raw(`
 					COUNT(comments.id)::int as comments_count
+				`),
+				this.knex.raw(`
+					COUNT(DISTINCT post_likes.user_id)::int as likes_count
 				`)
 			)
 			.from(this.tableName)
@@ -70,6 +74,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 			.leftJoin('comments', 'posts.id', 'comments.post_id')
 			.leftJoin('users as comment_users', 'comments.user_id', 'comment_users.id')
 			.leftJoin('user_profiles as comment_profiles', 'comment_users.id', 'comment_profiles.user_id')
+			.leftJoin('post_likes', 'posts.id', 'post_likes.post_id')
 			.groupBy(
 				'posts.id',
 				'users.username',
@@ -98,6 +103,12 @@ export class PostRepository extends KnexRepository<PostEntity> {
 						(SELECT COUNT(*)::int FROM comments WHERE comments.post_id = ${this.tableName}.id),
 						0
 					) as comments_count
+				`),
+				this.knex.raw(`
+					COALESCE(
+						(SELECT COUNT(*)::int FROM post_likes WHERE post_likes.post_id = ${this.tableName}.id),
+						0
+					) as likes_count
 				`)
 			)
 			.from(this.tableName)
@@ -167,7 +178,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 	}
 
 	async getAllWithComments(select: SelectColumns<PostEntity> = '*'): Promise<EnrichedPostWithComments[]> {
-		return this.buildPostsWithCommentsQuery(select).orderBy('posts.id', 'desc');
+		return this.buildPostsWithCommentsQuery(select).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
 	async getAllUsersPosts(
