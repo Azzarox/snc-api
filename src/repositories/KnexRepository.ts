@@ -24,7 +24,7 @@ type CreateEntity<T> = Omit<T, 'id' | 'createdAt' | 'updatedAt'>;
 export abstract class KnexRepository<T> implements BaseRepository<T> {
 	protected abstract tableName: string;
 
-	constructor(protected knex: Knex) { }
+	constructor(protected knex: Knex) {}
 
 	public get qb(): Knex.QueryBuilder {
 		return this.knex(this.tableName);
@@ -64,7 +64,10 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 	}
 
 	find(item: Partial<T>, select: SelectColumns<T> = '*'): Promise<T[]> {
-		return this.qb.select('*').returning(select).where({ ...item });
+		return this.qb
+			.select('*')
+			.returning(select)
+			.where({ ...item });
 	}
 
 	findById(id: string | number, select: SelectColumns<T> = '*'): Promise<T | null> {

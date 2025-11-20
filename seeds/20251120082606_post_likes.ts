@@ -13,7 +13,7 @@ export async function seed(knex: Knex): Promise<void> {
 		throw new Error('User not found for posts seeding');
 	}
 
-	const userPosts = await knex('posts').where({userId: user.id}).limit(3);
+	const userPosts = await knex('posts').where({ userId: user.id }).limit(3);
 	if (!userPosts.length) {
 		throw new Error("User doesn't have posts!");
 	}

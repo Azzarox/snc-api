@@ -28,7 +28,8 @@ export class PostRepository extends KnexRepository<PostEntity> {
 
 	private buildIsLikedByCurrentUserExpression(currentUserId: number | undefined, postIdColumn: string) {
 		return currentUserId !== undefined
-			? this.knex.raw(`
+			? this.knex.raw(
+					`
 				CASE
 					WHEN EXISTS (
 						SELECT 1 FROM post_likes
@@ -37,18 +38,23 @@ export class PostRepository extends KnexRepository<PostEntity> {
 					) THEN true
 					ELSE false
 				END as is_liked_by_current_user
-			`, [currentUserId])
+			`,
+					[currentUserId]
+				)
 			: this.knex.raw(`false as is_liked_by_current_user`);
 	}
 
 	private buildIsLikedByCurrentUserAggregateExpression(currentUserId: number | undefined) {
 		return currentUserId !== undefined
-			? this.knex.raw(`
+			? this.knex.raw(
+					`
 				CASE
 					WHEN bool_or(post_likes.user_id = ?) THEN true
 					ELSE false
 				END as is_liked_by_current_user
-			`, [currentUserId])
+			`,
+					[currentUserId]
+				)
 			: this.knex.raw(`false as is_liked_by_current_user`);
 	}
 
@@ -94,7 +100,7 @@ export class PostRepository extends KnexRepository<PostEntity> {
 				this.knex.raw(`
 					COUNT(DISTINCT post_likes.user_id)::int as likes_count
 				`),
-				this.buildIsLikedByCurrentUserAggregateExpression(currentUserId),
+				this.buildIsLikedByCurrentUserAggregateExpression(currentUserId)
 			)
 			.from(this.tableName)
 			.innerJoin('users', 'posts.user_id', 'users.id')
@@ -207,7 +213,10 @@ export class PostRepository extends KnexRepository<PostEntity> {
 		return enrichedPost;
 	}
 
-	async getAllWithComments(select: SelectColumns<PostEntity> = '*', currentUserId?: number): Promise<EnrichedPostWithComments[]> {
+	async getAllWithComments(
+		select: SelectColumns<PostEntity> = '*',
+		currentUserId?: number
+	): Promise<EnrichedPostWithComments[]> {
 		return this.buildPostsWithCommentsQuery(select, currentUserId).orderBy(`${this.tableName}.id`, 'desc');
 	}
 
@@ -222,6 +231,8 @@ export class PostRepository extends KnexRepository<PostEntity> {
 				.orderBy(`${this.tableName}.id`, 'desc')
 				.where(`${this.tableName}.userId`, userId);
 		}
-		return this.query(select, currentUserId).where(`${this.tableName}.userId`, userId).orderBy(`${this.tableName}.id`, 'desc');
+		return this.query(select, currentUserId)
+			.where(`${this.tableName}.userId`, userId)
+			.orderBy(`${this.tableName}.id`, 'desc');
 	}
 }

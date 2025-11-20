@@ -29,7 +29,6 @@ const getUserProfile = async (id: number) => {
 	return await userProfilesRepository.getUserProfile(id);
 };
 
-
 const createUserProfile = async (
 	userId: number,
 	payload: UserProfilePayload,
@@ -82,10 +81,10 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 		imageType === 'avatar'
 			? await cloudinaryService.uploadImage(file.buffer, `/user/${user.username}/${folder}`)
 			: await cloudinaryService.uploadCoverImage(
-				file.buffer,
-				`/user/${user.username}/${folder}`,
-				cropData?.croppedAreaPixels
-			);
+					file.buffer,
+					`/user/${user.username}/${folder}`,
+					cropData?.croppedAreaPixels
+				);
 
 	const updatedProfile = await userProfilesRepository.update(
 		{ userId },
@@ -124,7 +123,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 };
 
 export const userProfileService = {
-	 getUserProfile,
+	getUserProfile,
 	createUserProfile,
 	updateUserProfile,
 	uploadImage,
