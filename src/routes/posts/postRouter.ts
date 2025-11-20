@@ -1,6 +1,6 @@
 import Router from '@koa/router';
 import { postController } from '../../controllers/posts/postController';
-import { authMiddleware } from '../../middlewares/authMiddleware';
+import { authMiddleware, optionalAuthMiddleware } from '../../middlewares/authMiddleware';
 import { validate } from '../../middlewares/validationMiddleware';
 import { createPostSchema } from '../../schemas/posts/createPostSchema';
 import { paramsSchema } from '../../schemas/common/paramsSchema';
@@ -13,7 +13,7 @@ export const postRouter = new Router({
 	prefix: '/posts',
 });
 
-postRouter.get('/', postController.getAll);
+postRouter.get('/', optionalAuthMiddleware, postController.getAll);
 postRouter.get('/with-comments', postController.getAllWithComments);
 postRouter.get('/:id', authMiddleware, validate({ query: getPostQuerySchema, params: paramsSchema }), postController.getById);
 postRouter.post('/', authMiddleware, validate({ body: createPostSchema }), postController.createPost);

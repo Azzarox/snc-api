@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { CustomHttpError } from '../common/errors/CustomHttpError';
 
 const baseJwtMiddleware = jwtMiddleware({ secret: envConfig.JWT_SECRET, algorithms: ['HS256'], passthrough: false });
+const optionalJwtMiddleware = jwtMiddleware({ secret: envConfig.JWT_SECRET, algorithms: ['HS256'], passthrough: true });
 
 export const authMiddleware: Middleware = async (ctx: Context, next: Next) => {
 	try {
@@ -25,5 +26,17 @@ export const authMiddleware: Middleware = async (ctx: Context, next: Next) => {
 			throw new CustomHttpError(StatusCodes.UNAUTHORIZED, 'Authentication required!');
 		}
 		throw err;
+	}
+};
+
+/**
+ * @description
+ * Used for optionally setting the user if the frontend does an authenticated request but also passing through any requests which are not authenticated
+ */
+export const optionalAuthMiddleware: Middleware = async (ctx: Context, next: Next) => {
+	try {
+		await optionalJwtMiddleware(ctx, next);
+	} catch (err: any) {
+		await next();
 	}
 };
