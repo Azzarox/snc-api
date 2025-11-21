@@ -10,7 +10,7 @@ import { RegisterPayload } from '../../schemas/auth/registerSchema';
 import { UserEntity } from '../../schemas/entities/userEntitySchema';
 import { LoginPayload } from '../../schemas/auth/loginSchema';
 import { UserProfilePayload } from '../../schemas/auth/userProfileSchema';
-import { userService } from '../userService';
+import { userProfileService } from '../user/profile/userProfileService';
 import { User } from '../../types/koa';
 import { UserProfileEntity } from '../../schemas/entities/userProfileEntitySchema';
 import { CreateEntity } from '../../repositories/KnexRepository';
@@ -19,7 +19,7 @@ import { comparePasswords, hashPassword } from '../../utils/auth';
 const registerUser = async (payload: RegisterPayload) => {
 	const { username, password, email } = payload;
 
-	// TODO: Use identifier -> pole ...
+	// TODO: Use identifier -> 1 function ...
 	const userByUsername = await usersRepository.getByUsername(username, 'id');
 	const userByEmail = await usersRepository.getByEmail(email, 'id');
 
@@ -45,7 +45,7 @@ const registerUser = async (payload: RegisterPayload) => {
 			description: payload.description,
 		};
 
-		const profile: UserProfileEntity = await userService.createUserProfile(newUser.id, profilePayload, trx);
+		const profile: UserProfileEntity = await userProfileService.createUserProfile(newUser.id, profilePayload, trx);
 
 		return {
 			id: newUser.id,

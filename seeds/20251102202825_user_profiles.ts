@@ -1,6 +1,8 @@
 import { Knex } from 'knex';
 import { DB_USER_SEEDS } from './20251102202749_users';
 import { UserProfileEntity } from '../src/schemas/entities/userProfileEntitySchema';
+import { generateDefaultAvatarUrl } from '../src/utils/generateAvatarImage';
+import { generateDefaultCoverUrl } from '../src/utils/generateCoverImage';
 
 const DB_USER_PROFILE_SEEDS: Record<string, Partial<UserProfileEntity>> = {
 	test123: {
@@ -8,6 +10,8 @@ const DB_USER_PROFILE_SEEDS: Record<string, Partial<UserProfileEntity>> = {
 		lastName: 'Testing',
 		bio: 'This is user Test Testing bio',
 		description: 'I am user test testing ...',
+		avatarStorageKey: null,
+		coverStorageKey: null,
 	},
 	sarah: {
 		firstName: 'Sarah',
@@ -19,6 +23,8 @@ const DB_USER_PROFILE_SEEDS: Record<string, Partial<UserProfileEntity>> = {
 		contemporary songwriting. I love sharing my
 		passion for music and helping others on
 		their guitar journey.`,
+		avatarStorageKey: null,
+		coverStorageKey: null,
 	},
 };
 
@@ -42,6 +48,8 @@ export async function seed(knex: Knex): Promise<void> {
 		}
 
 		userProfile.userId = user.id;
+		userProfile.avatarUrl = generateDefaultAvatarUrl(user.id);
+		userProfile.coverUrl = generateDefaultCoverUrl(user.id);
 
 		await knex('user_profiles').insert([userProfile]);
 	}
