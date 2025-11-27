@@ -25,8 +25,8 @@ const PROFILE_IMAGE_FIELDS = {
 	}
 >;
 
-const getCurrentUserProfile = async (id: number) => {
-	return await userProfilesRepository.getCurrentUserProfile(id);
+const getUserProfile = async (id: number) => {
+	return await userProfilesRepository.getUserProfile(id);
 };
 
 const createUserProfile = async (
@@ -62,7 +62,7 @@ const uploadImage = async (userId: number, file: multer.File, imageType: Profile
 
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'username'),
-		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
+		userProfilesRepository.getUserProfile(userId, storageKey),
 	]);
 
 	if (!user) {
@@ -100,7 +100,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 
 	const [user, profile] = await Promise.all([
 		usersRepository.findOneBy({ id: userId }, 'id'),
-		userProfilesRepository.getCurrentUserProfile(userId, storageKey),
+		userProfilesRepository.getUserProfile(userId, storageKey),
 	]);
 
 	if (!user) {
@@ -123,7 +123,7 @@ const removeImage = async (userId: number, imageType: ProfileImageType) => {
 };
 
 export const userProfileService = {
-	getCurrentUserProfile,
+	getUserProfile,
 	createUserProfile,
 	updateUserProfile,
 	uploadImage,

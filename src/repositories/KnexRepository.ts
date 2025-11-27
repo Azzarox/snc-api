@@ -53,16 +53,21 @@ export abstract class KnexRepository<T> implements BaseRepository<T> {
 			.then((rows) => rows[0]);
 	}
 
-	async delete(id: string | number, returning: ReturnColumns<T> = '*'): Promise<T> {
+	async delete(where: string | number | Partial<T>, returning: ReturnColumns<T> = '*'): Promise<T> {
+		const whereClause = typeof where === 'object' ? where : { id: where };
+
 		return this.qb
-			.where({ id: id })
+			.where(whereClause)
 			.delete()
 			.returning(returning)
 			.then((rows) => rows[0]);
 	}
 
-	find(item: Partial<T>): Promise<T[]> {
-		return this.qb.select('*').where({ ...item });
+	find(item: Partial<T>, select: SelectColumns<T> = '*'): Promise<T[]> {
+		return this.qb
+			.select('*')
+			.returning(select)
+			.where({ ...item });
 	}
 
 	findById(id: string | number, select: SelectColumns<T> = '*'): Promise<T | null> {

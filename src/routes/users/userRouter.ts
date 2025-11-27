@@ -6,15 +6,27 @@ import { updateUserProfileSchema } from '../../schemas/auth/userProfileSchema';
 import { imageCropSchema } from '../../schemas/common/imageCropSchema';
 import { validate } from '../../middlewares/validationMiddleware';
 import { uploadSingleImage } from '../../middlewares/uploadMiddleware';
+import { paramsSchema } from '../../schemas/common/paramsSchema';
+import { postController } from '../../controllers/posts/postController';
+import { getPostQuerySchema } from '../../schemas/posts/getPostQuerySchema';
 
 export const userRouter = new Router({
 	prefix: '/users',
 });
 
 userRouter.get('/', authMiddleware, userController.getAllUsers);
+userRouter.get(
+	'/:id/posts',
+	authMiddleware,
+	validate({ params: paramsSchema, query: getPostQuerySchema }),
+	postController.getAllUserPosts
+);
 
 // TODO: Move the profile router to own router .use(userProfileRouter)
 userRouter.get('/profile', authMiddleware, userProfileController.getCurrentUserProfile);
+
+userRouter.get('/:id/profile', authMiddleware, validate({ params: paramsSchema }), userProfileController.getProfileByUserId);
+
 userRouter.patch(
 	'/profile',
 	authMiddleware,

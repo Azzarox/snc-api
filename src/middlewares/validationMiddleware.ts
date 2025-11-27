@@ -53,7 +53,7 @@ export const validate =
 			}
 
 			if (schema.query) {
-				ctx.request.query = schema.query.parse(ctx.request.query);
+				ctx.query = schema.query.parse(ctx.request.query);
 			}
 
 			await next();
