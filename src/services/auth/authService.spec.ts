@@ -46,7 +46,6 @@ describe('authService', () => {
 		const newProfile = { id: 1, firstName: registerPayload.firstName, lastName: registerPayload.lastName };
 
 		it('should successfully register a new user', async () => {
-
 			jest.spyOn(usersRepository, 'getByUsername').mockResolvedValue(null);
 			jest.spyOn(usersRepository, 'getByEmail').mockResolvedValue(null);
 			jest.spyOn(authUtils, 'hashPassword').mockResolvedValue(hashedPassword);

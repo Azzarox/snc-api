@@ -82,10 +82,7 @@ describe('commentService', () => {
 			const result = await service.updateComment(userId, postId, commentId, payload);
 
 			expect(helpers.validateBeforeCommentOperations).toHaveBeenCalledWith(userId, postId, commentId);
-			expect(repository.update).toHaveBeenCalledWith(
-				{ id: commentId, postId, userId },
-				payload
-			);
+			expect(repository.update).toHaveBeenCalledWith({ id: commentId, postId, userId }, payload);
 			expect(result).toEqual(updatedComment);
 		});
 
