@@ -1,7 +1,7 @@
-import { Context, DefaultContext } from "koa";
-import { authService } from "../../services/auth/authService"
-import { User, UserJWT } from "../../types/koa"
-import { authController } from "./authController"
+import { Context, } from "koa";
+import { authService as service } from "../../services/auth/authService"
+import { UserJWT } from "../../types/koa"
+import { authController as controller } from "./authController"
 import { RegisterPayload } from "../../schemas/auth/registerSchema";
 import { ValidatedContext } from "../../middlewares/validationMiddleware";
 import { StatusCodes } from "http-status-codes";
@@ -9,8 +9,6 @@ import { SuccessResponse } from "../../common/response/Response";
 import { LoginPayload } from "../../schemas/auth/loginSchema";
 
 
-const service = authService;
-const controller = authController;
 
 describe('authController', () => {
 
