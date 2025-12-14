@@ -6,6 +6,7 @@
 	"author": "",
 	"main": "index.js",
 	"scripts": {
+		"test": "jest",
 		"dev": "nodemon src/server.ts",
 		"start": "tsc -b && node dist/server.js",
 		"lint": "eslint . --ext .ts --fix",
