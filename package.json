@@ -17,6 +17,7 @@
 		"migrations:make": "knex migrate:make",
 		"migrations:rollback": "knex migrate:rollback",
 		"migrations": "knex migrate:latest",
+		"migrations:prod": "knex --knexfile ./knexConfig.ts migrate:latest",
 		"seeds:make": "knex seed:make -x ts --timestamp-filename-prefix",
 		"seeds": "knex seed:run"
 	},
