@@ -6,9 +6,9 @@ A modern social networking API built with **Koa.js** and **TypeScript**, featuri
 
 ## Requirements
 
-* Node.js (LTS recommended)
-* npm
-* Docker & Docker Compose
+- Node.js (LTS recommended)
+- npm
+- Docker & Docker Compose
 
 ---
 
@@ -47,26 +47,26 @@ Your API will be available at `http://localhost:{PORT}/v1`.
 
 ## Tech Stack
 
-* **TypeScript** 
-* **Koa.js**
-* **Knex.js** 
-* **PostgreSQL**
-* **Cloudinary**
-* **Zod**
-* **Jest** 
-* **Docker**
+- **TypeScript**
+- **Koa.js**
+- **Knex.js**
+- **PostgreSQL**
+- **Cloudinary**
+- **Zod**
+- **Jest**
+- **Docker**
 
 ---
 
 ## Features
 
-* JWT authentication and user management
-* User profiles with avatar and cover image uploads
-* Social networking functionality (posts, comments, likes)
-* Image storage and processing with Cloudinary
-* Type-safe API with TypeScript and Zod validation
-* Comprehensive test coverage with Jest
-* Database migrations and seeding
+- JWT authentication and user management
+- User profiles with avatar and cover image uploads
+- Social networking functionality (posts, comments, likes)
+- Image storage and processing with Cloudinary
+- Type-safe API with TypeScript and Zod validation
+- Comprehensive test coverage with Jest
+- Database migrations and seeding
 
 ---
 
@@ -114,18 +114,18 @@ Your API will be available at `http://localhost:{PORT}/v1`.
 
 ## Scripts
 
-* `npm run dev` – Starts the development server with hot reload using nodemon.
-* `npm start` – Builds and starts the production server.
-* `npm run build` – Compiles TypeScript to JavaScript in the `./dist` directory.
-* `npm test` – Runs the test suite with Jest.
-* `npm run lint` – Runs ESLint and auto-fixes TypeScript issues.
-* `npm run prettier:check` – Checks code formatting with Prettier.
-* `npm run prettier:format` – Formats code with Prettier.
-* `npm run migrations` – Runs all database migrations.
-* `npm run migrations:make` – Creates a new migration file.
-* `npm run migrations:rollback` – Rolls back the last migration.
-* `npm run seeds` – Runs all database seed files.
-* `npm run seeds:make` – Creates a new seed file.
+- `npm run dev` – Starts the development server with hot reload using nodemon.
+- `npm start` – Builds and starts the production server.
+- `npm run build` – Compiles TypeScript to JavaScript in the `./dist` directory.
+- `npm test` – Runs the test suite with Jest.
+- `npm run lint` – Runs ESLint and auto-fixes TypeScript issues.
+- `npm run prettier:check` – Checks code formatting with Prettier.
+- `npm run prettier:format` – Formats code with Prettier.
+- `npm run migrations` – Runs all database migrations.
+- `npm run migrations:make` – Creates a new migration file.
+- `npm run migrations:rollback` – Rolls back the last migration.
+- `npm run seeds` – Runs all database seed files.
+- `npm run seeds:make` – Creates a new seed file.
 
 ---
 
@@ -138,8 +138,8 @@ Before running the application, environment variables must be configured:
 3. Configure the variables with your data following the example:
 
 ```env
-PORT=5000                           
-SALT=10                            
+PORT=5000
+SALT=10
 JWT_SECRET=your-secret-key
 
 # PostgreSQL Configuration
@@ -159,20 +159,19 @@ CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
 
 The project uses **PostgreSQL** running in Docker container.
 
-
 1. Configure environment variables in `.env`.
 2. Start the database container:
-   ```bash
-   docker-compose up
-   ```
+    ```bash
+    docker-compose up
+    ```
 3. Run migrations:
-   ```bash
-   npm run migrations
-   ```
+    ```bash
+    npm run migrations
+    ```
 4. (Optional) Seed initial data:
-   ```bash
-   npm run seeds
-   ```
+    ```bash
+    npm run seeds
+    ```
 
 ## Testing
 
@@ -195,8 +194,8 @@ npm run test:coverage
 
 This project uses GitHub Actions for continuous integration. The pipeline runs on pull requests to `main` and includes:
 
-* Prettier formatting check
-* Tests
+- Prettier formatting check
+- Tests
 
 ---
 
@@ -206,54 +205,52 @@ Base URL: `/v1`
 
 ### Authentication
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| `POST` | `/v1/auth/register` | Register a new user | Public |
-| `POST` | `/v1/auth/login` | Authenticate user and return JWT | Public |
-| `GET` | `/v1/auth/me` | Get current authenticated user | Private |
+| Method | Endpoint            | Description                      | Access  |
+| ------ | ------------------- | -------------------------------- | ------- |
+| `POST` | `/v1/auth/register` | Register a new user              | Public  |
+| `POST` | `/v1/auth/login`    | Authenticate user and return JWT | Public  |
+| `GET`  | `/v1/auth/me`       | Get current authenticated user   | Private |
 
 ### Users
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| `GET` | `/v1/users` | Get all users | Private |
-| `GET` | `/v1/users/:id/posts` | Get posts by specific user | Private |
-| `GET` | `/v1/users/profile` | Get current user profile | Private |
-| `GET` | `/v1/users/:id/profile` | Get user profile by ID | Private |
-| `PATCH` | `/v1/users/profile` | Update current user profile | Private |
-| `PUT` | `/v1/users/profile/avatar` | Upload user avatar | Private |
-| `DELETE` | `/v1/users/profile/avatar` | Remove user avatar | Private |
-| `PUT` | `/v1/users/profile/cover` | Upload cover image | Private |
-| `DELETE` | `/v1/users/profile/cover` | Remove cover image | Private |
+| Method   | Endpoint                   | Description                 | Access  |
+| -------- | -------------------------- | --------------------------- | ------- |
+| `GET`    | `/v1/users`                | Get all users               | Private |
+| `GET`    | `/v1/users/:id/posts`      | Get posts by specific user  | Private |
+| `GET`    | `/v1/users/profile`        | Get current user profile    | Private |
+| `GET`    | `/v1/users/:id/profile`    | Get user profile by ID      | Private |
+| `PATCH`  | `/v1/users/profile`        | Update current user profile | Private |
+| `PUT`    | `/v1/users/profile/avatar` | Upload user avatar          | Private |
+| `DELETE` | `/v1/users/profile/avatar` | Remove user avatar          | Private |
+| `PUT`    | `/v1/users/profile/cover`  | Upload cover image          | Private |
+| `DELETE` | `/v1/users/profile/cover`  | Remove cover image          | Private |
 
 ### Posts
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| `GET` | `/v1/posts` | Get all posts | Public/Private |
-| `GET` | `/v1/posts/with-comments` | Get all posts with comments | Public |
-| `GET` | `/v1/posts/:id` | Get specific post | Private |
-| `POST` | `/v1/posts` | Create new post | Private |
-| `PATCH` | `/v1/posts/:id` | Update post | Private |
-| `DELETE` | `/v1/posts/:id` | Delete post | Private |
+| Method   | Endpoint                  | Description                 | Access         |
+| -------- | ------------------------- | --------------------------- | -------------- |
+| `GET`    | `/v1/posts`               | Get all posts               | Public/Private |
+| `GET`    | `/v1/posts/with-comments` | Get all posts with comments | Public         |
+| `GET`    | `/v1/posts/:id`           | Get specific post           | Private        |
+| `POST`   | `/v1/posts`               | Create new post             | Private        |
+| `PATCH`  | `/v1/posts/:id`           | Update post                 | Private        |
+| `DELETE` | `/v1/posts/:id`           | Delete post                 | Private        |
 
 ### Comments
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| `GET` | `/v1/comments` | Get all comments | Private |
-| `GET` | `/v1/posts/:id/comments` | Get comments for specific post | Private |
-| `POST` | `/v1/posts/:id/comments` | Create comment on post | Private |
-| `PATCH` | `/v1/posts/:id/comments/:commentId` | Update comment | Private |
-| `DELETE` | `/v1/posts/:id/comments/:commentId` | Delete comment | Private |
+| Method   | Endpoint                            | Description                    | Access  |
+| -------- | ----------------------------------- | ------------------------------ | ------- |
+| `GET`    | `/v1/comments`                      | Get all comments               | Private |
+| `GET`    | `/v1/posts/:id/comments`            | Get comments for specific post | Private |
+| `POST`   | `/v1/posts/:id/comments`            | Create comment on post         | Private |
+| `PATCH`  | `/v1/posts/:id/comments/:commentId` | Update comment                 | Private |
+| `DELETE` | `/v1/posts/:id/comments/:commentId` | Delete comment                 | Private |
 
 ### Likes
 
-| Method | Endpoint | Description | Access |
-|--------|----------|-------------|---------|
-| `POST` | `/v1/posts/:id/likes` | Toggle like on post | Private |
-| `GET` | `/v1/posts/:id/likes` | Get likes for specific post | Private |
+| Method | Endpoint              | Description                 | Access  |
+| ------ | --------------------- | --------------------------- | ------- |
+| `POST` | `/v1/posts/:id/likes` | Toggle like on post         | Private |
+| `GET`  | `/v1/posts/:id/likes` | Get likes for specific post | Private |
 
 ---
-
-
