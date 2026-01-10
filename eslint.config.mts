@@ -51,7 +51,14 @@ export default defineConfig([
 			'@typescript-eslint/require-await': 'warn',
 			'@typescript-eslint/no-misused-promises': 'error',
 
-			'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+			'prettier/prettier': [
+				'error',
+				{},
+				{
+					endOfLine: 'auto',
+				},
+				{ usePrettierrc: true },
+			],
 		},
 	},
 ]);
