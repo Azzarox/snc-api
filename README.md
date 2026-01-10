@@ -1,4 +1,4 @@
-# SNC API
+# StringHub API
 
 A modern social networking API built with **Koa.js** and **TypeScript**, featuring JWT authentication, user profiles, posts, comments, likes, and image upload capabilities with Cloudinary integration.
 

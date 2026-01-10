@@ -10,7 +10,7 @@
 		"dev": "nodemon src/server.ts",
 		"start": "tsc -b && node dist/server.js",
 		"lint": "eslint . --ext .ts --fix",
-		"prod:start": "node dist/server.js",
+		"prod:start": "node dist/src/server.js",
 		"build": "tsc -b",
 		"prettier:check": "prettier . --check",
 		"prettier:format": "prettier . --write",
