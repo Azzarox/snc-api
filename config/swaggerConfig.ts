@@ -3,6 +3,6 @@ import yamljs from "yamljs";
 import path from "path";
 
 const spec = yamljs.load(
-  path.resolve(process.cwd(), 'swagger.yml')
+  path.resolve(__dirname, '../swagger.yml')
 );
 export default koaSwagger({routePrefix: false, swaggerOptions: { spec }});
