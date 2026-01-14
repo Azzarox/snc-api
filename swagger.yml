@@ -67,6 +67,88 @@ components:
                 status: 401
                 success: false
                 message: Invalid Authentication Token!
+
+    ForbiddenResourceError:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 403
+            success: false
+            message: "You don't have permission to modify this resource"
+
+    PostNotFoundError:
+      description: Post not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 404
+            success: false
+            message: "Post with ID:1 not found!"
+
+  examples:
+    # GET /posts/${id} - without comments
+    GetPostByIdWithoutCommentsExample:
+      summary: Without Comments
+      value:
+        status: 200
+        success: true
+        message: null
+        data:
+          id:
+          title: My New Post
+          content: This is the content of my new post.
+          userId: 1
+          createdAt: "2026-01-14T12:45:16.875Z"
+          updatedAt: "2026-01-14T12:45:16.875Z"
+          user:
+            username: testUser
+            fistName: Test
+            lastName: User
+            avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
+          commentsCount: 0
+          likesCount: 0
+          isLikedByCurrentUser: false
+
+    # GET /posts/${id} - with comments
+    GetPostByIdWithCommentsExample:
+      summary: With Comments
+      value:
+        status: 200
+        success: true
+        message: null
+        data:
+          id:
+          title: My New Post
+          content: This is the content of my new post.
+          userId: 1
+          createdAt: "2026-01-14T12:45:16.875Z"
+          updatedAt: "2026-01-14T12:45:16.875Z"
+          user:
+            username: testUser
+            fistName: Test
+            lastName: User
+            avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
+          comments:
+            id: 1
+            userId: 1
+            postId: 2
+            content: "Post 1"
+            createdAt: "2026-01-14T12:52:36.886231+00:00"
+            updatedAt: "2026-01-14T12:52:36.886231+00:00"
+            user:
+              username: "testUser"
+              firstName: "Test"
+              lastName: "User"
+              avatarUrl: "https://api.dicebear.com/9.x/notionists/svg?seed=1"
+          commentsCount: 0
+          likesCount: 0
+          isLikedByCurrentUser: false
+
   schemas:
     # Common Response Wrapper
     SuccessResponse:
@@ -181,7 +263,7 @@ components:
           format: date-time
 
     # Resource Owner
-    ResourceUser: 
+    ResourceUser:
       type: object
       properties:
         username:
@@ -195,7 +277,7 @@ components:
           example: User
         avatarUrl:
           type: string
-          example: 'https://example.com/avatar.jpg'
+          example: "https://example.com/avatar.jpg"
 
     # Post Schemas
     PostList:
@@ -219,8 +301,8 @@ components:
         updatedAt:
           type: string
           format: date-time
-        user: 
-          $ref: '#/components/schemas/ResourceUser'
+        user:
+          $ref: "#/components/schemas/ResourceUser"
         commentsCount:
           type: integer
           example: 1
@@ -278,11 +360,11 @@ components:
           type: string
           format: date-time
         user:
-          $ref: '#/components/schemas/ResourceUser'
+          $ref: "#/components/schemas/ResourceUser"
         comments:
           type: array
           items:
-            $ref: '#/components/schemas/Comment'
+            $ref: "#/components/schemas/Comment"
         commentsCount:
           type: integer
           example: 1
@@ -315,8 +397,8 @@ components:
         updatedAt:
           type: string
           format: date-time
-        user: 
-          $ref: '#/components/schemas/ResourceUser'
+        user:
+          $ref: "#/components/schemas/ResourceUser"
 
     # Request Body Schemas
     RegisterPayload:
@@ -1095,7 +1177,7 @@ paths:
                       status:
                         example: 201
                       message:
-                        example: 'Successfully created post!'
+                        example: "Successfully created post!"
                       data:
                         $ref: "#/components/schemas/CreatePostResponse"
         "400":
@@ -1161,19 +1243,18 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/PostWithComments"
+                        oneOf:
+                          - $ref: "#/components/schemas/PostWithComments"
+                          - $ref: "#/components/schemas/PostList"
+              examples:
+                withoutComments:
+                  $ref: "#/components/examples/GetPostByIdWithoutCommentsExample"
+                withComments:
+                  $ref: "#/components/examples/GetPostByIdWithCommentsExample"
         "401":
           $ref: "#components/responses/UnauthorizedError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                status: 404
-                success: false
-                message: "Post with ID:1 not found!"
+          $ref: "#components/responses/PostNotFoundError"
 
     patch:
       tags:
@@ -1196,7 +1277,7 @@ paths:
             schema:
               $ref: "#/components/schemas/UpdatePostRequest"
       responses:
-        "201":
+        "200":
           description: Post updated successfully
           content:
             application/json:
@@ -1206,9 +1287,11 @@ paths:
                   - type: object
                     properties:
                       status:
-                        example: 201
+                        example: 200
+                      message:
+                        example: "Successfully updated post!"
                       data:
-                        $ref: "#/components/schemas/Post"
+                        $ref: "#/components/schemas/CreatePostResponse"
         "400":
           description: Validation error
           content:
@@ -1217,12 +1300,10 @@ paths:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
           $ref: "#components/responses/UnauthorizedError"
+        "403":
+          $ref: "#components/responses/ForbiddenResourceError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#components/responses/PostNotFoundError"
 
     delete:
       tags:
@@ -1250,16 +1331,16 @@ paths:
                     properties:
                       status:
                         example: 201
+                      message:
+                        example: "Successfully deleted post!"
                       data:
-                        $ref: "#/components/schemas/Post"
+                        $ref: "#/components/schemas/CreatePostResponse"
         "401":
           $ref: "#components/responses/UnauthorizedError"
+        "403":
+          $ref: "#components/responses/ForbiddenResourceError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#components/responses/PostNotFoundError"
 
   /posts/{id}/comments:
     get:
