@@ -5,7 +5,7 @@ import { postsRepository } from '../../repositories';
 const validateBeforePostOperations = async (userId: number, postId: number) => {
 	const post = await postsRepository.findOneBy({ id: postId });
 	if (!post) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Post not found!');
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
 	}
 
 	if (post.userId !== userId) {

@@ -6,7 +6,7 @@ import { commentServiceHelpers } from './helpers';
 
 const createComment = async (userId: number, postId: number, payload: CreateCommentPayload) => {
 	const post = await postsRepository.findOneBy({ id: postId });
-	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Post not found!');
+	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
 
 	return await commentsRepository.create({ userId, postId, ...payload });
 };
