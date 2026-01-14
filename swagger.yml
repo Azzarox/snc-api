@@ -114,8 +114,8 @@ components:
             items:
               type: string
           example:
-            email: ["Invalid email format"]
-            password: ["String must contain at least 6 character(s)"]
+            field1: ["Error for field1"]
+            field2: ["Error for field2"]
 
     # User Schemas
     User:
@@ -180,39 +180,118 @@ components:
           type: string
           format: date-time
 
+    # Resource Owner
+    ResourceUser: 
+      type: object
+      properties:
+        username:
+          type: string
+          example: testUser
+        firstName:
+          type: string
+          example: Test
+        lastName:
+          type: string
+          example: User
+        avatarUrl:
+          type: string
+          example: 'https://example.com/avatar.jpg'
+
     # Post Schemas
-    Post:
+    PostList:
       type: object
       properties:
         id:
           type: integer
           example: 1
+        title:
+          type: string
+          example: My New Post
+        content:
+          type: string
+          example: This is the content of my new post.
         userId:
           type: integer
           example: 1
-        title:
-          type: string
-          example: My First Post
-          maxLength: 200
-        content:
-          type: string
-          example: This is the content of my first post.
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+        user: 
+          $ref: '#/components/schemas/ResourceUser'
+        commentsCount:
+          type: integer
+          example: 1
+        likesCount:
+          type: integer
+          example: 0
+        isLikedByCurrentUser:
+          type: boolean
+          example: false
+
+    CreatePostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: My New Post
+        content:
+          type: string
+          example: This is the content of my new post.
+        userId:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        username:
+          type: string
+          example: testUser
 
     PostWithComments:
-      allOf:
-        - $ref: "#/components/schemas/Post"
-        - type: object
-          properties:
-            comments:
-              type: array
-              items:
-                $ref: "#/components/schemas/Comment"
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: My New Post
+        content:
+          type: string
+          example: This is the content of my new post.
+        userId:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/ResourceUser'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+        commentsCount:
+          type: integer
+          example: 1
+        likesCount:
+          type: integer
+          example: 0
+        isLikedByCurrentUser:
+          type: boolean
+          example: false
 
     # Comment Schemas
     Comment:
@@ -236,6 +315,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        user: 
+          $ref: '#/components/schemas/ResourceUser'
 
     # Request Body Schemas
     RegisterPayload:
@@ -986,7 +1067,7 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: "#/components/schemas/Post"
+                          $ref: "#/components/schemas/PostList"
 
     post:
       tags:
@@ -1013,8 +1094,10 @@ paths:
                     properties:
                       status:
                         example: 201
+                      message:
+                        example: 'Successfully created post!'
                       data:
-                        $ref: "#/components/schemas/Post"
+                        $ref: "#/components/schemas/CreatePostResponse"
         "400":
           description: Validation error
           content:
@@ -1029,7 +1112,7 @@ paths:
       tags:
         - Posts
       summary: Get all posts with comments
-      description: Retrieve all posts with their nested comments (public endpoint)
+      description: Retrieve all posts with their comments
       responses:
         "200":
           description: List of posts with comments
