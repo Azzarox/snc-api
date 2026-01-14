@@ -87,7 +87,7 @@ describe('commentService', () => {
 		});
 
 		it('should throw error when validation fails', async () => {
-			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this comment");
+			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 
 			jest.spyOn(helpers, 'validateBeforeCommentOperations').mockRejectedValue(error);
 			jest.spyOn(repository, 'update');

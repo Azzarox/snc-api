@@ -9,7 +9,7 @@ const validateBeforePostOperations = async (userId: number, postId: number) => {
 	}
 
 	if (post.userId !== userId) {
-		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this post");
+		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 	}
 };
 

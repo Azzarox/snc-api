@@ -147,7 +147,7 @@ describe('postService', () => {
 		});
 
 		it('should throw error when validation fails', async () => {
-			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this post");
+			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 
 			jest.spyOn(helpers, 'validateBeforePostOperations').mockRejectedValue(error);
 			jest.spyOn(repository, 'delete');

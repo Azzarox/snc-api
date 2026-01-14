@@ -14,7 +14,7 @@ const validateBeforeCommentOperations = async (userId: number, postId: number, c
 	}
 
 	if (comment.userId !== userId) {
-		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this comment");
+		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 	}
 };
 
