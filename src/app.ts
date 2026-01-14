@@ -13,10 +13,8 @@ import cors from '@koa/cors'
 const app = new Koa();
 const router = new KoaRouter();
 
-router.get('/hello', (ctx: Context) => {
-	ctx.body = {
-		msg: 'hello',
-	};
+router.get('/', (ctx: Context) => {
+	ctx.redirect('/v1/docs');
 });
 
 app.use(requestId());
