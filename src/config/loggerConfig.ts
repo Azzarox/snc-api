@@ -1,15 +1,22 @@
 import pino from 'pino';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 export const loggerConfig = {
-	level: 'debug',
-	transport: {
-		target: 'pino-pretty',
-		options: {
-			colorize: true,
-			translateTime: 'yyyy-mm-dd HH:MM:ss',
-			ignore: 'pid,hostname',
-		},
+	level: isDev ? 'debug' : 'info',
+	base: {
+		env: process.env.NODE_ENV || 'development',
 	},
+	...(isDev && {
+		transport: {
+			target: 'pino-pretty',
+			options: {
+				colorize: true,
+				translateTime: 'yyyy-mm-dd HH:MM:ss',
+				ignore: 'pid,hostname',
+			},
+		},
+	}),
 	serializers: {
 		err: pino.stdSerializers.err,
 		req(req: any) {
@@ -32,6 +39,7 @@ export const loggerConfig = {
 
 			return {
 				statusCode,
+				contentLength: headers['content-length'],
 				headers: {
 					'request-id': headers['request-id'],
 					'content-type': headers['content-type'],

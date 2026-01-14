@@ -21,11 +21,13 @@ app.use(requestId());
 app.use(
 	koaPinoLogger({
 		...loggerConfig,
-		customLogLevel: (req, res) => {
+		customLogLevel: (_req, res) => {
 			if (res.statusCode && res.statusCode >= 400) return 'error';
-			// if (ctx >= 400) return 'warn';
 			return 'info';
 		},
+		customProps: (ctx) => ({
+			userId: (ctx as unknown as Context).state?.user?.id || null,
+		}),
 	})
 );
 app.use(cors({
