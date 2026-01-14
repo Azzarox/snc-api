@@ -620,15 +620,6 @@ components:
           type: integer
           example: 42
 
-    PingResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-        message:
-          type: string
-          example: success
 
 paths:
   /ping:
@@ -642,13 +633,10 @@ paths:
           description: API is healthy
           content:
             application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/PingResponse"
+              example:
+                value:
+                  status: 200
+                  message: 'success'
 
   /auth/register:
     post:
@@ -684,6 +672,25 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/ValidationErrorResponse"
                   - $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                alreadyExist:
+                  summary: User already exist
+                  value:
+                    status: 400 
+                    success: false
+                    message: 'User already exists!'  
+                validationError:
+                  summary: Validation Error
+                  value:
+                    status: 400
+                    success: false
+                    message: 'Validation Error'
+                    errors: 
+                      field1:
+                        - Error for field1
+                      field2:
+                        - Error for field2
+              
 
   /auth/login:
     post:
