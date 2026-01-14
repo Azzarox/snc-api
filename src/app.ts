@@ -9,6 +9,7 @@ import koaPinoLogger from 'koa-pino-logger';
 import loggerConfig from './config/loggerConfig';
 import { envConfig } from '../config/envConfig';
 import cors from '@koa/cors';
+import compress from 'koa-compress'
 import { rateLimitMiddleware } from './middlewares/rateLimitMiddleware';
 
 const app = new Koa();
@@ -19,6 +20,7 @@ router.get('/', (ctx: Context) => {
 });
 
 app.use(requestId());
+app.use(compress());
 app.use(
 	koaPinoLogger({
 		...loggerConfig,
