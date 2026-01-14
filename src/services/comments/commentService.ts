@@ -11,6 +11,13 @@ const createComment = async (userId: number, postId: number, payload: CreateComm
 	return await commentsRepository.create({ userId, postId, ...payload });
 };
 
+const getAllPostComments = async (postId: number) => {
+	const post = await postsRepository.findOneBy({ id: postId });
+	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
+
+	return await commentsRepository.getPostComments(postId);
+};
+
 const updateComment = async (userId: number, postId: number, commentId: number, payload: UpdateCommentPayload) => {
 	await commentServiceHelpers.validateBeforeCommentOperations(userId, postId, commentId);
 	return await commentsRepository.update({ id: commentId, postId, userId }, payload);
@@ -22,6 +29,7 @@ const deleteComment = async (userId: number, postId: number, commentId: number) 
 };
 
 export const commentService = {
+	getAllPostComments,
 	createComment,
 	updateComment,
 	deleteComment,
