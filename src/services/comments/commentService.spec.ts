@@ -57,7 +57,7 @@ describe('commentService', () => {
 			} catch (err: any) {
 				expect(err).toBeInstanceOf(CustomHttpError);
 				expect(err.status).toBe(StatusCodes.NOT_FOUND);
-				expect(err.message).toBe('Post not found!');
+				expect(err.message).toBe(`Post with ID:${postId} not found!`);
 			}
 
 			expect(postsRepository.findOneBy).toHaveBeenCalledWith({ id: postId });
@@ -87,7 +87,7 @@ describe('commentService', () => {
 		});
 
 		it('should throw error when validation fails', async () => {
-			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this comment");
+			const error = new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 
 			jest.spyOn(helpers, 'validateBeforeCommentOperations').mockRejectedValue(error);
 			jest.spyOn(repository, 'update');

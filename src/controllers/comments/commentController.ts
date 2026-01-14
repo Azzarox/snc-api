@@ -30,7 +30,7 @@ const getAllComments = async (ctx: Context) => {
 };
 
 const getAllPostComments = async (ctx: ValidatedContext<never, GenericParams>) => {
-	const comments = await commentsRepository.getPostComments(ctx.params.id);
+	const comments = await commentService.getAllPostComments(ctx.params.id);
 	const response = new SuccessResponse(StatusCodes.OK, null, comments);
 	ctx.status = response.status;
 	ctx.body = response;

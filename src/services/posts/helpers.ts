@@ -5,11 +5,11 @@ import { postsRepository } from '../../repositories';
 const validateBeforePostOperations = async (userId: number, postId: number) => {
 	const post = await postsRepository.findOneBy({ id: postId });
 	if (!post) {
-		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Post not found!');
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
 	}
 
 	if (post.userId !== userId) {
-		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this post");
+		throw new CustomHttpError(StatusCodes.FORBIDDEN, "You don't have permission to modify this resource");
 	}
 };
 

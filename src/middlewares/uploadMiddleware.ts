@@ -8,7 +8,7 @@ const imageFileFilter = (_req: any, file: any, cb: any) => {
 	if (file.mimetype.startsWith('image/')) {
 		cb(null, true);
 	} else {
-		throw new CustomHttpError(StatusCodes.BAD_REQUEST, 'Wrong file format! You can upload only images!');
+		cb(new CustomHttpError(StatusCodes.BAD_REQUEST, 'Wrong file format! You can upload only images!'), false);
 	}
 };
 

@@ -6,9 +6,16 @@ import { commentServiceHelpers } from './helpers';
 
 const createComment = async (userId: number, postId: number, payload: CreateCommentPayload) => {
 	const post = await postsRepository.findOneBy({ id: postId });
-	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, 'Post not found!');
+	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
 
 	return await commentsRepository.create({ userId, postId, ...payload });
+};
+
+const getAllPostComments = async (postId: number) => {
+	const post = await postsRepository.findOneBy({ id: postId });
+	if (!post) throw new CustomHttpError(StatusCodes.NOT_FOUND, `Post with ID:${postId} not found!`);
+
+	return await commentsRepository.getPostComments(postId);
 };
 
 const updateComment = async (userId: number, postId: number, commentId: number, payload: UpdateCommentPayload) => {
@@ -22,6 +29,7 @@ const deleteComment = async (userId: number, postId: number, commentId: number) 
 };
 
 export const commentService = {
+	getAllPostComments,
 	createComment,
 	updateComment,
 	deleteComment,
