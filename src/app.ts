@@ -8,7 +8,8 @@ import requestId from 'koa-requestid';
 import koaPinoLogger from 'koa-pino-logger';
 import loggerConfig from './config/loggerConfig';
 import { envConfig } from '../config/envConfig';
-import cors from '@koa/cors'
+import cors from '@koa/cors';
+import { rateLimitMiddleware } from './middlewares/rateLimitMiddleware';
 
 const app = new Koa();
 const router = new KoaRouter();
@@ -34,6 +35,7 @@ app.use(cors({
 	origin: envConfig.FRONTEND_CORS_ORIGIN,
 	credentials: true,
 }));
+app.use(rateLimitMiddleware);
 
 app.use(json());
 app.use(bodyParser());
