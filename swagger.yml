@@ -757,7 +757,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/UserProfile"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: User not found
           content:
@@ -769,7 +769,7 @@ paths:
                 success: false
                 message: User not found!
 
-  /users/profile/avatar:
+  /users/profile/avatar: # Ot tuk nadolu trqbva da se testva s ui
     put:
       tags:
         - User Profile
@@ -791,7 +791,7 @@ paths:
                   format: binary
                   description: Image file to upload
       responses:
-        "201":
+        "200":
           description: Avatar uploaded successfully
           content:
             application/json:
@@ -801,17 +801,30 @@ paths:
                   - type: object
                     properties:
                       status:
-                        example: 201
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        example: "Avatar uploaded successfully"
                       data:
-                        $ref: "#/components/schemas/UserProfile"
+                        type: object
+                        properties:
+                          avatarUrl:
+                            type: string
+                            example: "https://res.cloudinary.com/demo/image/upload/v1/app/user/avatar/example123.jpg"
         "400":
-          description: Invalid file
+          description: Wrong file format
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: 400
+                success: false
+                message: "Wrong file format! You can upload only images!"
+
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
     delete:
       tags:
@@ -821,7 +834,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        "201":
+        "200":
           description: Avatar deleted successfully
           content:
             application/json:
@@ -831,11 +844,20 @@ paths:
                   - type: object
                     properties:
                       status:
-                        example: 201
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        example: "Avatar removed successfully"
                       data:
-                        $ref: "#/components/schemas/UserProfile"
+                        type: object
+                        properties:
+                          avatarUrl:
+                            type: string
+                            example: "https://api.dicebear.com/9.x/notionists/svg?seed=1"
+
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
   /users/profile/cover:
     put:
@@ -863,7 +885,7 @@ paths:
                   description: JSON string containing crop coordinates
                   example: '{"x":0,"y":0,"width":800,"height":400}'
       responses:
-        "201":
+        "200":
           description: Cover uploaded successfully
           content:
             application/json:
@@ -873,17 +895,42 @@ paths:
                   - type: object
                     properties:
                       status:
-                        example: 201
+                        example: 200
+                      message:
+                        example: "Cover uploaded successfully"
                       data:
-                        $ref: "#/components/schemas/UserProfile"
+                        type: object
+                        properties:
+                          coverUrl:
+                            type: string
+                            example: "https://res.cloudinary.com/demo/image/upload/c_crop,h_400,w_800,x_0,y_0/v1/app/user/cover/example123.jpg"
+
         "400":
           description: Invalid file or crop coordinates
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                wrongFileFormat:
+                  summary: Wrong file format
+                  value:
+                    status: 400
+                    success: false
+                    message: "Wrong file format! You can upload only images!"
+                invalidCropCoordinates:
+                  summary: Invalid crop coordinates
+                  value:
+                    status: 400
+                    success: false
+                    message: "Validation Error"
+                    errors:
+                      croppedAreaPixels:
+                        - "Invalid crop coordinates"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
     delete:
       tags:
@@ -893,8 +940,8 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        "201":
-          description: Cover deleted successfully
+        "200":
+          description: Avatar deleted successfully
           content:
             application/json:
               schema:
@@ -903,11 +950,19 @@ paths:
                   - type: object
                     properties:
                       status:
-                        example: 201
+                        type: integer
+                        example: 200
+                      message:
+                        type: string
+                        example: "Cover removed successfully"
                       data:
-                        $ref: "#/components/schemas/UserProfile"
+                        type: object
+                        properties:
+                          coverUrl:
+                            type: string
+                            example: "https://example.com/images/cover.jpg"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
   /posts:
     get:
@@ -967,7 +1022,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
   /posts/with-comments:
     get:
@@ -1025,7 +1080,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/PostWithComments"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1078,7 +1133,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1115,7 +1170,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/Post"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1153,7 +1208,7 @@ paths:
                         items:
                           $ref: "#/components/schemas/Comment"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1202,7 +1257,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1262,7 +1317,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Comment not found
           content:
@@ -1305,7 +1360,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/Comment"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Comment not found
           content:
@@ -1336,7 +1391,7 @@ paths:
                         items:
                           $ref: "#/components/schemas/Comment"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
 
   /posts/{id}/likes:
     post:
@@ -1368,7 +1423,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/LikeResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
@@ -1403,7 +1458,7 @@ paths:
                       data:
                         $ref: "#/components/schemas/LikesCountResponse"
         "401":
-          $ref: '#components/responses/UnauthorizedError'
+          $ref: "#components/responses/UnauthorizedError"
         "404":
           description: Post not found
           content:
