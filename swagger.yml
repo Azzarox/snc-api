@@ -149,6 +149,19 @@ components:
           likesCount: 0
           isLikedByCurrentUser: false
 
+    PostNotFoundExample:
+      summary: Post by id not found
+      value:
+        status: 404
+        success: false
+        message: Post with ID:1 not found!
+    CommentNotFoundExample:
+      summary: Comment not found
+      value:
+        status: 404
+        success: false
+        message: Comment not found
+
   schemas:
     # Common Response Wrapper
     SuccessResponse:
@@ -376,21 +389,21 @@ components:
           example: false
 
     # Comment Schemas
-    Comment:
+    Comment: # It has the user attached
       type: object
       properties:
         id:
           type: integer
           example: 1
+        content:
+          type: string
+          example: Great post!
         userId:
           type: integer
           example: 1
         postId:
           type: integer
           example: 1
-        content:
-          type: string
-          example: Great post!
         createdAt:
           type: string
           format: date-time
@@ -399,6 +412,28 @@ components:
           format: date-time
         user:
           $ref: "#/components/schemas/ResourceUser"
+
+    CommentWithoutUser: 
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        content:
+          type: string
+          example: Great post!
+        userId:
+          type: integer
+          example: 1
+        postId:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
 
     # Request Body Schemas
     RegisterPayload:
@@ -571,10 +606,10 @@ components:
           type: string
           enum: [liked, unliked]
           example: liked
-        userId:
+        postId:
           type: integer
           example: 1
-        postId:
+        userId:
           type: integer
           example: 1
 
@@ -1367,18 +1402,19 @@ paths:
                   - $ref: "#/components/schemas/SuccessResponse"
                   - type: object
                     properties:
+                      status:
+                        example: 200
+                      message:
+                        example: null
                       data:
                         type: array
                         items:
                           $ref: "#/components/schemas/Comment"
+
         "401":
           $ref: "#components/responses/UnauthorizedError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#components/responses/PostNotFoundError"
 
     post:
       tags:
@@ -1412,8 +1448,10 @@ paths:
                     properties:
                       status:
                         example: 201
+                      message:
+                        example: "Successfully added comment!"
                       data:
-                        $ref: "#/components/schemas/Comment"
+                        $ref: "#/components/schemas/CommentWithoutUser"
         "400":
           description: Validation error
           content:
@@ -1422,16 +1460,9 @@ paths:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
           $ref: "#components/responses/UnauthorizedError"
+
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                success: false
-                status: 404
-                message: Post not found!
+          $ref: "#components/responses/PostNotFoundError"
 
   /posts/{id}/comments/{commentId}:
     patch:
@@ -1472,8 +1503,10 @@ paths:
                     properties:
                       status:
                         example: 201
+                      message:
+                        example: "Successfully updated comment!"
                       data:
-                        $ref: "#/components/schemas/Comment"
+                        $ref: "#/components/schemas/CommentWithoutUser"
         "400":
           description: Validation error
           content:
@@ -1482,12 +1515,19 @@ paths:
                 $ref: "#/components/schemas/ValidationErrorResponse"
         "401":
           $ref: "#components/responses/UnauthorizedError"
+        "403":
+          $ref: "#components/responses/ForbiddenResourceError"
         "404":
-          description: Comment not found
+          description: Post or Comment not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                postNotFound:
+                  $ref: "#/components/examples/PostNotFoundExample"
+                commentNotFound:
+                  $ref: "#/components/examples/CommentNotFoundExample"
 
     delete:
       tags:
@@ -1521,16 +1561,25 @@ paths:
                     properties:
                       status:
                         example: 201
+                      message:
+                        example: "Successfully deleted comment!"
                       data:
-                        $ref: "#/components/schemas/Comment"
+                        $ref: "#/components/schemas/CommentWithoutUser"
         "401":
           $ref: "#components/responses/UnauthorizedError"
+        "403":
+          $ref: "#components/responses/ForbiddenResourceError"
         "404":
-          description: Comment not found
+          description: Post or Comment not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                postNotFound:
+                  $ref: "#/components/examples/PostNotFoundExample"
+                commentNotFound:
+                  $ref: "#/components/examples/CommentNotFoundExample"
 
   /comments:
     get:
@@ -1550,10 +1599,14 @@ paths:
                   - $ref: "#/components/schemas/SuccessResponse"
                   - type: object
                     properties:
+                      status:
+                        example: 200
+                      message:
+                        example: null
                       data:
                         type: array
                         items:
-                          $ref: "#/components/schemas/Comment"
+                          $ref: "#/components/schemas/CommentWithoutUser"
         "401":
           $ref: "#components/responses/UnauthorizedError"
 
@@ -1581,19 +1634,30 @@ paths:
                 allOf:
                   - $ref: "#/components/schemas/SuccessResponse"
                   - type: object
-                    properties:
-                      status:
-                        example: 201
-                      data:
-                        $ref: "#/components/schemas/LikeResponse"
+              examples:
+                liked:
+                  summary: Liked Response
+                  value:
+                    status: 201
+                    message: 'Successfully liked post!'
+                    data:
+                      action: liked
+                      userId: 1
+                      postId: 1
+                unliked:
+                  summary: Unliked Response
+                  value:
+                    status: 201
+                    message: 'Successfully unliked post!'
+                    data:
+                      action: unliked
+                      userId: 1
+                      postId: 1
+
         "401":
           $ref: "#components/responses/UnauthorizedError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#components/responses/PostNotFoundError"
 
     get:
       tags:
@@ -1619,13 +1683,13 @@ paths:
                   - $ref: "#/components/schemas/SuccessResponse"
                   - type: object
                     properties:
+                      status: 
+                        example: 200
+                      message: 
+                        example: null
                       data:
                         $ref: "#/components/schemas/LikesCountResponse"
         "401":
           $ref: "#components/responses/UnauthorizedError"
         "404":
-          description: Post not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+          $ref: "#components/responses/PostNotFoundError"
