@@ -7,7 +7,8 @@ import { ValidatedContext } from '../../middlewares/validationMiddleware';
 import { CreateCommentPayload, UpdateCommentPayload } from '../../schemas/comments/createCommentSchema';
 import { CommentParams } from '../../schemas/comments/commentParamSchema';
 import { GenericParams } from '../../schemas/common/paramsSchema';
-import { commentsRepository as repository } from '../../repositories';
+import { postsRepository, commentsRepository as repository } from '../../repositories';
+import { PostEntity } from '../../schemas/entities/postEntitySchema';
 
 const userId = 1;
 const postId = 1;
@@ -129,6 +130,7 @@ describe('commentController', () => {
 		it('should return proper response', async () => {
 			const comments = [comment];
 
+			jest.spyOn(postsRepository, 'findOneBy').mockResolvedValue({ id: postId } as PostEntity);
 			jest.spyOn(repository, 'getPostComments').mockResolvedValue(comments as any);
 
 			const ctx = {
@@ -137,6 +139,7 @@ describe('commentController', () => {
 
 			await controller.getAllPostComments(ctx);
 
+			expect(postsRepository.findOneBy).toHaveBeenCalledWith({ id: postId });
 			expect(repository.getPostComments).toHaveBeenCalledWith(postId);
 			expect(ctx.status).toBe(StatusCodes.OK);
 			expect(ctx.body).toBeInstanceOf(SuccessResponse);

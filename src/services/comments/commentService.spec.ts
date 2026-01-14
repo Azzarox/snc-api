@@ -57,7 +57,7 @@ describe('commentService', () => {
 			} catch (err: any) {
 				expect(err).toBeInstanceOf(CustomHttpError);
 				expect(err.status).toBe(StatusCodes.NOT_FOUND);
-				expect(err.message).toBe('Post not found!');
+				expect(err.message).toBe(`Post with ID:${postId} not found!`);
 			}
 
 			expect(postsRepository.findOneBy).toHaveBeenCalledWith({ id: postId });
