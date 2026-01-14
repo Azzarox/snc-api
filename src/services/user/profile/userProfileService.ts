@@ -26,6 +26,10 @@ const PROFILE_IMAGE_FIELDS = {
 >;
 
 const getUserProfile = async (id: number) => {
+	const user = await usersRepository.findOneBy({ id });
+	if (!user) {
+		throw new CustomHttpError(StatusCodes.NOT_FOUND, 'User not found!');
+	}
 	return await userProfilesRepository.getUserProfile(id);
 };
 
