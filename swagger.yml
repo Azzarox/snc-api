@@ -1,1702 +1,1700 @@
 openapi: 3.0.3
 info:
-  title: StringHub API
-  description: |
-    REST API for StringHub - a social platform with posts, comments, likes, and user profiles.
+    title: StringHub API
+    description: |
+        REST API for StringHub - a social platform with posts, comments, likes, and user profiles.
 
-    ## Authentication
-    Most endpoints require JWT authentication. Include the token in the Authorization header:
-    ```
-    Authorization: Bearer <your_jwt_token>
-    ```
-  version: 1.0.0
-  contact:
-    name: StringHub API Support
+        ## Authentication
+        Most endpoints require JWT authentication. Include the token in the Authorization header:
+        ```
+        Authorization: Bearer <your_jwt_token>
+        ```
+    version: 1.0.0
+    contact:
+        name: StringHub API Support
 
 servers:
-  - url: /v1
-    description: Version 1
+    - url: /v1
+      description: Version 1
 
 tags:
-  - name: Health
-    description: Health check endpoint
-  - name: Authentication
-    description: User authentication and registration
-  - name: Users
-    description: User management
-  - name: User Profile
-    description: User profile management
-  - name: Posts
-    description: Post management
-  - name: Comments
-    description: Comment management on posts
-  - name: Likes
-    description: Like/unlike posts
+    - name: Health
+      description: Health check endpoint
+    - name: Authentication
+      description: User authentication and registration
+    - name: Users
+      description: User management
+    - name: User Profile
+      description: User profile management
+    - name: Posts
+      description: Post management
+    - name: Comments
+      description: Comment management on posts
+    - name: Likes
+      description: Like/unlike posts
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token obtained from login endpoint
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+            description: JWT token obtained from login endpoint
 
-  responses:
-    UnauthorizedError:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          examples:
-            missingToken:
-              summary: Missing token
-              value:
-                status: 401
+    responses:
+        UnauthorizedError:
+            description: Unauthorized
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    examples:
+                        missingToken:
+                            summary: Missing token
+                            value:
+                                status: 401
+                                success: false
+                                message: Authentication required!
+                        expiredToken:
+                            summary: Expired token
+                            value:
+                                status: 401
+                                success: false
+                                message: Session Expired! Please log in again.
+                        invalidToken:
+                            summary: Invalid token
+                            value:
+                                status: 401
+                                success: false
+                                message: Invalid Authentication Token!
+
+        ForbiddenResourceError:
+            description: Forbidden
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    example:
+                        status: 403
+                        success: false
+                        message: "You don't have permission to modify this resource"
+
+        PostNotFoundError:
+            description: Post not found
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+                    example:
+                        status: 404
+                        success: false
+                        message: 'Post with ID:1 not found!'
+
+    examples:
+        # GET /posts/${id} - without comments
+        GetPostByIdWithoutCommentsExample:
+            summary: Without Comments
+            value:
+                status: 200
+                success: true
+                message: null
+                data:
+                    id:
+                    title: My New Post
+                    content: This is the content of my new post.
+                    userId: 1
+                    createdAt: '2026-01-14T12:45:16.875Z'
+                    updatedAt: '2026-01-14T12:45:16.875Z'
+                    user:
+                        username: testUser
+                        fistName: Test
+                        lastName: User
+                        avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
+                    commentsCount: 0
+                    likesCount: 0
+                    isLikedByCurrentUser: false
+
+        # GET /posts/${id} - with comments
+        GetPostByIdWithCommentsExample:
+            summary: With Comments
+            value:
+                status: 200
+                success: true
+                message: null
+                data:
+                    id:
+                    title: My New Post
+                    content: This is the content of my new post.
+                    userId: 1
+                    createdAt: '2026-01-14T12:45:16.875Z'
+                    updatedAt: '2026-01-14T12:45:16.875Z'
+                    user:
+                        username: testUser
+                        fistName: Test
+                        lastName: User
+                        avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
+                    comments:
+                        id: 1
+                        userId: 1
+                        postId: 2
+                        content: 'Post 1'
+                        createdAt: '2026-01-14T12:52:36.886231+00:00'
+                        updatedAt: '2026-01-14T12:52:36.886231+00:00'
+                        user:
+                            username: 'testUser'
+                            firstName: 'Test'
+                            lastName: 'User'
+                            avatarUrl: 'https://api.dicebear.com/9.x/notionists/svg?seed=1'
+                    commentsCount: 0
+                    likesCount: 0
+                    isLikedByCurrentUser: false
+
+        PostNotFoundExample:
+            summary: Post by id not found
+            value:
+                status: 404
                 success: false
-                message: Authentication required!
-            expiredToken:
-              summary: Expired token
-              value:
-                status: 401
+                message: Post with ID:1 not found!
+        CommentNotFoundExample:
+            summary: Comment not found
+            value:
+                status: 404
                 success: false
-                message: Session Expired! Please log in again.
-            invalidToken:
-              summary: Invalid token
-              value:
-                status: 401
-                success: false
-                message: Invalid Authentication Token!
+                message: Comment not found
 
-    ForbiddenResourceError:
-      description: Forbidden
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          example:
-            status: 403
-            success: false
-            message: "You don't have permission to modify this resource"
+    schemas:
+        # Common Response Wrapper
+        SuccessResponse:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    example: 200
+                success:
+                    type: boolean
+                    example: true
+                message:
+                    type: string
+                    nullable: true
+                data:
+                    type: object
 
-    PostNotFoundError:
-      description: Post not found
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ErrorResponse"
-          example:
-            status: 404
-            success: false
-            message: "Post with ID:1 not found!"
+        ErrorResponse:
+            type: object
+            properties:
+                status:
+                    type: integer
+                success:
+                    type: boolean
+                    example: false
+                message:
+                    type: string
 
-  examples:
-    # GET /posts/${id} - without comments
-    GetPostByIdWithoutCommentsExample:
-      summary: Without Comments
-      value:
-        status: 200
-        success: true
-        message: null
-        data:
-          id:
-          title: My New Post
-          content: This is the content of my new post.
-          userId: 1
-          createdAt: "2026-01-14T12:45:16.875Z"
-          updatedAt: "2026-01-14T12:45:16.875Z"
-          user:
-            username: testUser
-            fistName: Test
-            lastName: User
-            avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
-          commentsCount: 0
-          likesCount: 0
-          isLikedByCurrentUser: false
+        ValidationErrorResponse:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    example: 400
+                success:
+                    type: boolean
+                    example: false
+                message:
+                    type: string
+                    example: Validation Error
+                errors:
+                    type: object
+                    additionalProperties:
+                        type: array
+                        items:
+                            type: string
+                    example:
+                        field1: ['Error for field1']
+                        field2: ['Error for field2']
 
-    # GET /posts/${id} - with comments
-    GetPostByIdWithCommentsExample:
-      summary: With Comments
-      value:
-        status: 200
-        success: true
-        message: null
-        data:
-          id:
-          title: My New Post
-          content: This is the content of my new post.
-          userId: 1
-          createdAt: "2026-01-14T12:45:16.875Z"
-          updatedAt: "2026-01-14T12:45:16.875Z"
-          user:
-            username: testUser
-            fistName: Test
-            lastName: User
-            avatarUrl: https://api.dicebear.com/9.x/notionists/svg?seed=1
-          comments:
-            id: 1
-            userId: 1
-            postId: 2
-            content: "Post 1"
-            createdAt: "2026-01-14T12:52:36.886231+00:00"
-            updatedAt: "2026-01-14T12:52:36.886231+00:00"
-            user:
-              username: "testUser"
-              firstName: "Test"
-              lastName: "User"
-              avatarUrl: "https://api.dicebear.com/9.x/notionists/svg?seed=1"
-          commentsCount: 0
-          likesCount: 0
-          isLikedByCurrentUser: false
+        # User Schemas
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                username:
+                    type: string
+                    example: testUser
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
 
-    PostNotFoundExample:
-      summary: Post by id not found
-      value:
-        status: 404
-        success: false
-        message: Post with ID:1 not found!
-    CommentNotFoundExample:
-      summary: Comment not found
-      value:
-        status: 404
-        success: false
-        message: Comment not found
+        UserProfile:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                userId:
+                    type: integer
+                    example: 1
+                firstName:
+                    type: string
+                    example: Test
+                lastName:
+                    type: string
+                    example: User
+                bio:
+                    type: string
+                    nullable: true
+                    example: A test example of bio
+                    maxLength: 120
+                description:
+                    type: string
+                    nullable: true
+                    example: A test example of description. This is a test description.
+                    maxLength: 255
+                avatarUrl:
+                    type: string
+                    nullable: true
+                    example: https://res.cloudinary.com/demo/image/upload/avatar.jpg
+                avatarStorageKey:
+                    type: string
+                    nullable: true
+                coverUrl:
+                    type: string
+                    nullable: true
+                    example: https://res.cloudinary.com/demo/image/upload/cover.jpg
+                coverStorageKey:
+                    type: string
+                    nullable: true
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
 
-  schemas:
-    # Common Response Wrapper
-    SuccessResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 200
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          nullable: true
-        data:
-          type: object
+        # Resource Owner
+        ResourceUser:
+            type: object
+            properties:
+                username:
+                    type: string
+                    example: testUser
+                firstName:
+                    type: string
+                    example: Test
+                lastName:
+                    type: string
+                    example: User
+                avatarUrl:
+                    type: string
+                    example: 'https://example.com/avatar.jpg'
 
-    ErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
+        # Post Schemas
+        PostList:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                title:
+                    type: string
+                    example: My New Post
+                content:
+                    type: string
+                    example: This is the content of my new post.
+                userId:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                user:
+                    $ref: '#/components/schemas/ResourceUser'
+                commentsCount:
+                    type: integer
+                    example: 1
+                likesCount:
+                    type: integer
+                    example: 0
+                isLikedByCurrentUser:
+                    type: boolean
+                    example: false
 
-    ValidationErrorResponse:
-      type: object
-      properties:
-        status:
-          type: integer
-          example: 400
-        success:
-          type: boolean
-          example: false
-        message:
-          type: string
-          example: Validation Error
-        errors:
-          type: object
-          additionalProperties:
-            type: array
-            items:
-              type: string
-          example:
-            field1: ["Error for field1"]
-            field2: ["Error for field2"]
+        CreatePostResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                title:
+                    type: string
+                    example: My New Post
+                content:
+                    type: string
+                    example: This is the content of my new post.
+                userId:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                username:
+                    type: string
+                    example: testUser
 
-    # User Schemas
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        username:
-          type: string
-          example: testUser
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+        PostWithComments:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                title:
+                    type: string
+                    example: My New Post
+                content:
+                    type: string
+                    example: This is the content of my new post.
+                userId:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                user:
+                    $ref: '#/components/schemas/ResourceUser'
+                comments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Comment'
+                commentsCount:
+                    type: integer
+                    example: 1
+                likesCount:
+                    type: integer
+                    example: 0
+                isLikedByCurrentUser:
+                    type: boolean
+                    example: false
 
-    UserProfile:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        userId:
-          type: integer
-          example: 1
-        firstName:
-          type: string
-          example: Test
-        lastName:
-          type: string
-          example: User
-        bio:
-          type: string
-          nullable: true
-          example: A test example of bio
-          maxLength: 120
-        description:
-          type: string
-          nullable: true
-          example: A test example of description. This is a test description.
-          maxLength: 255
-        avatarUrl:
-          type: string
-          nullable: true
-          example: https://res.cloudinary.com/demo/image/upload/avatar.jpg
-        avatarStorageKey:
-          type: string
-          nullable: true
-        coverUrl:
-          type: string
-          nullable: true
-          example: https://res.cloudinary.com/demo/image/upload/cover.jpg
-        coverStorageKey:
-          type: string
-          nullable: true
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+        # Comment Schemas
+        Comment: # It has the user attached
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                content:
+                    type: string
+                    example: Great post!
+                userId:
+                    type: integer
+                    example: 1
+                postId:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                user:
+                    $ref: '#/components/schemas/ResourceUser'
 
-    # Resource Owner
-    ResourceUser:
-      type: object
-      properties:
-        username:
-          type: string
-          example: testUser
-        firstName:
-          type: string
-          example: Test
-        lastName:
-          type: string
-          example: User
-        avatarUrl:
-          type: string
-          example: "https://example.com/avatar.jpg"
+        CommentWithoutUser:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    example: 1
+                content:
+                    type: string
+                    example: Great post!
+                userId:
+                    type: integer
+                    example: 1
+                postId:
+                    type: integer
+                    example: 1
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
 
-    # Post Schemas
-    PostList:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: My New Post
-        content:
-          type: string
-          example: This is the content of my new post.
-        userId:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        user:
-          $ref: "#/components/schemas/ResourceUser"
-        commentsCount:
-          type: integer
-          example: 1
-        likesCount:
-          type: integer
-          example: 0
-        isLikedByCurrentUser:
-          type: boolean
-          example: false
+        # Request Body Schemas
+        RegisterPayload:
+            type: object
+            required:
+                - username
+                - email
+                - password
+                - firstName
+                - lastName
+            properties:
+                username:
+                    type: string
+                    minLength: 3
+                    example: testUser
+                email:
+                    type: string
+                    format: email
+                    example: testUser@gmail.com
+                password:
+                    type: string
+                    minLength: 6
+                    example: testUser123
+                firstName:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    example: Test
+                lastName:
+                    type: string
+                    minLength: 1
+                    maxLength: 50
+                    example: User
+                bio:
+                    type: string
+                    maxLength: 120
+                    example: A test example of bio
+                description:
+                    type: string
+                    maxLength: 255
+                    example: A test example of description. This is a test description.
 
-    CreatePostResponse:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: My New Post
-        content:
-          type: string
-          example: This is the content of my new post.
-        userId:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        username:
-          type: string
-          example: testUser
+        LoginPayloadWithUsername:
+            type: object
+            required:
+                - username
+                - password
+            properties:
+                username:
+                    type: string
+                    example: testUser
+                password:
+                    type: string
+                    example: testUser123
 
-    PostWithComments:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: My New Post
-        content:
-          type: string
-          example: This is the content of my new post.
-        userId:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        user:
-          $ref: "#/components/schemas/ResourceUser"
-        comments:
-          type: array
-          items:
-            $ref: "#/components/schemas/Comment"
-        commentsCount:
-          type: integer
-          example: 1
-        likesCount:
-          type: integer
-          example: 0
-        isLikedByCurrentUser:
-          type: boolean
-          example: false
+        LoginPayloadWithEmail:
+            type: object
+            required:
+                - email
+                - password
+            properties:
+                email:
+                    type: string
+                    format: email
+                    example: testUser@gmail.com
+                password:
+                    type: string
+                    example: testUser123
 
-    # Comment Schemas
-    Comment: # It has the user attached
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        content:
-          type: string
-          example: Great post!
-        userId:
-          type: integer
-          example: 1
-        postId:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        user:
-          $ref: "#/components/schemas/ResourceUser"
+        UpdateUserProfileRequest:
+            type: object
+            minProperties: 1
+            properties:
+                firstName:
+                    type: string
+                    maxLength: 50
+                lastName:
+                    type: string
+                    maxLength: 50
+                bio:
+                    type: string
+                    maxLength: 120
+                description:
+                    type: string
+                    maxLength: 255
 
-    CommentWithoutUser: 
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        content:
-          type: string
-          example: Great post!
-        userId:
-          type: integer
-          example: 1
-        postId:
-          type: integer
-          example: 1
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+        CreatePostRequest:
+            type: object
+            required:
+                - title
+                - content
+            properties:
+                title:
+                    type: string
+                    minLength: 1
+                    maxLength: 200
+                    example: My New Post
+                content:
+                    type: string
+                    minLength: 1
+                    example: This is the content of my new post.
 
-    # Request Body Schemas
-    RegisterPayload:
-      type: object
-      required:
-        - username
-        - email
-        - password
-        - firstName
-        - lastName
-      properties:
-        username:
-          type: string
-          minLength: 3
-          example: testUser
-        email:
-          type: string
-          format: email
-          example: testUser@gmail.com
-        password:
-          type: string
-          minLength: 6
-          example: testUser123
-        firstName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: Test
-        lastName:
-          type: string
-          minLength: 1
-          maxLength: 50
-          example: User
-        bio:
-          type: string
-          maxLength: 120
-          example: A test example of bio
-        description:
-          type: string
-          maxLength: 255
-          example: A test example of description. This is a test description.
+        UpdatePostRequest:
+            type: object
+            minProperties: 1
+            properties:
+                title:
+                    type: string
+                    maxLength: 200
+                    example: Updated Title
+                content:
+                    type: string
+                    example: Updated content
 
-    LoginPayloadWithUsername:
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-          example: testUser
-        password:
-          type: string
-          example: testUser123
+        CreateCommentRequest:
+            type: object
+            required:
+                - content
+            properties:
+                content:
+                    type: string
+                    minLength: 1
+                    example: This is a comment
 
-    LoginPayloadWithEmail:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-          example: testUser@gmail.com
-        password:
-          type: string
-          example: testUser123
+        UpdateCommentRequest:
+            type: object
+            required:
+                - content
+            properties:
+                content:
+                    type: string
+                    minLength: 1
+                    example: Updated comment content
 
-    UpdateUserProfileRequest:
-      type: object
-      minProperties: 1
-      properties:
-        firstName:
-          type: string
-          maxLength: 50
-        lastName:
-          type: string
-          maxLength: 50
-        bio:
-          type: string
-          maxLength: 120
-        description:
-          type: string
-          maxLength: 255
+        ImageCropPayload:
+            type: object
+            properties:
+                croppedAreaPixels:
+                    type: object
+                    properties:
+                        x:
+                            type: integer
+                            minimum: 0
+                            example: 0
+                        y:
+                            type: integer
+                            minimum: 0
+                            example: 0
+                        width:
+                            type: integer
+                            minimum: 1
+                            example: 800
+                        height:
+                            type: integer
+                            minimum: 1
+                            example: 400
 
-    CreatePostRequest:
-      type: object
-      required:
-        - title
-        - content
-      properties:
-        title:
-          type: string
-          minLength: 1
-          maxLength: 200
-          example: My New Post
-        content:
-          type: string
-          minLength: 1
-          example: This is the content of my new post.
+        # Response Schemas
+        LoginResponse:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-    UpdatePostRequest:
-      type: object
-      minProperties: 1
-      properties:
-        title:
-          type: string
-          maxLength: 200
-          example: Updated Title
-        content:
-          type: string
-          example: Updated content
+        LikeResponse:
+            type: object
+            properties:
+                action:
+                    type: string
+                    enum: [liked, unliked]
+                    example: liked
+                postId:
+                    type: integer
+                    example: 1
+                userId:
+                    type: integer
+                    example: 1
 
-    CreateCommentRequest:
-      type: object
-      required:
-        - content
-      properties:
-        content:
-          type: string
-          minLength: 1
-          example: This is a comment
-
-    UpdateCommentRequest:
-      type: object
-      required:
-        - content
-      properties:
-        content:
-          type: string
-          minLength: 1
-          example: Updated comment content
-
-    ImageCropPayload:
-      type: object
-      properties:
-        croppedAreaPixels:
-          type: object
-          properties:
-            x:
-              type: integer
-              minimum: 0
-              example: 0
-            y:
-              type: integer
-              minimum: 0
-              example: 0
-            width:
-              type: integer
-              minimum: 1
-              example: 800
-            height:
-              type: integer
-              minimum: 1
-              example: 400
-
-    # Response Schemas
-    LoginResponse:
-      type: object
-      properties:
-        accessToken:
-          type: string
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-    LikeResponse:
-      type: object
-      properties:
-        action:
-          type: string
-          enum: [liked, unliked]
-          example: liked
-        postId:
-          type: integer
-          example: 1
-        userId:
-          type: integer
-          example: 1
-
-    LikesCountResponse:
-      type: object
-      properties:
-        likesCount:
-          type: integer
-          example: 42
-
+        LikesCountResponse:
+            type: object
+            properties:
+                likesCount:
+                    type: integer
+                    example: 42
 
 paths:
-  /ping:
-    get:
-      tags:
-        - Health
-      summary: Health check
-      description: Check if the API is running
-      responses:
-        "200":
-          description: API is healthy
-          content:
-            application/json:
-              example:
-                value:
-                  status: 200
-                  message: 'success'
+    /ping:
+        get:
+            tags:
+                - Health
+            summary: Health check
+            description: Check if the API is running
+            responses:
+                '200':
+                    description: API is healthy
+                    content:
+                        application/json:
+                            example:
+                                value:
+                                    status: 200
+                                    message: 'success'
 
-  /auth/register:
-    post:
-      tags:
-        - Authentication
-      summary: Register a new user
-      description: Create a new user account with profile
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RegisterPayload"
-      responses:
-        "201":
-          description: User registered successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      data:
-                        $ref: "#/components/schemas/User"
-        "400":
-          description: Validation error or user already exists
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/ValidationErrorResponse"
-                  - $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                alreadyExist:
-                  summary: User already exist
-                  value:
-                    status: 400 
-                    success: false
-                    message: 'User already exists!'  
-                validationError:
-                  summary: Validation Error
-                  value:
-                    status: 400
-                    success: false
-                    message: 'Validation Error'
-                    errors: 
-                      field1:
-                        - Error for field1
-                      field2:
-                        - Error for field2
-              
+    /auth/register:
+        post:
+            tags:
+                - Authentication
+            summary: Register a new user
+            description: Create a new user account with profile
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterPayload'
+            responses:
+                '201':
+                    description: User registered successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          data:
+                                              $ref: '#/components/schemas/User'
+                '400':
+                    description: Validation error or user already exists
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - $ref: '#/components/schemas/ValidationErrorResponse'
+                                    - $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                alreadyExist:
+                                    summary: User already exist
+                                    value:
+                                        status: 400
+                                        success: false
+                                        message: 'User already exists!'
+                                validationError:
+                                    summary: Validation Error
+                                    value:
+                                        status: 400
+                                        success: false
+                                        message: 'Validation Error'
+                                        errors:
+                                            field1:
+                                                - Error for field1
+                                            field2:
+                                                - Error for field2
 
-  /auth/login:
-    post:
-      tags:
-        - Authentication
-      summary: Login
-      description: Authenticate with username/email and password to receive a JWT token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - $ref: "#/components/schemas/LoginPayloadWithUsername"
-                - $ref: "#/components/schemas/LoginPayloadWithEmail"
-            examples:
-              loginWithUsername:
-                summary: Login with username
-                value:
-                  username: testUser
-                  password: testUser123
-              loginWithEmail:
-                summary: Login with email
-                value:
-                  email: testUser@gmail.com
-                  password: testUser123
-      responses:
-        "200":
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/LoginResponse"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                success: false
-                status: 401
-                message: Wrong username or password
+    /auth/login:
+        post:
+            tags:
+                - Authentication
+            summary: Login
+            description: Authenticate with username/email and password to receive a JWT token
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            oneOf:
+                                - $ref: '#/components/schemas/LoginPayloadWithUsername'
+                                - $ref: '#/components/schemas/LoginPayloadWithEmail'
+                        examples:
+                            loginWithUsername:
+                                summary: Login with username
+                                value:
+                                    username: testUser
+                                    password: testUser123
+                            loginWithEmail:
+                                summary: Login with email
+                                value:
+                                    email: testUser@gmail.com
+                                    password: testUser123
+            responses:
+                '200':
+                    description: Login successful
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/LoginResponse'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    description: Invalid credentials
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                success: false
+                                status: 401
+                                message: Wrong username or password
 
-  /auth/me:
-    get:
-      tags:
-        - Authentication
-      summary: Get current user
-      description: Get the currently authenticated user's information
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Current user data
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            example: 1,
-                          email:
-                            type: string/users
-                            example: testUser@gmail.com
-                          username:
-                            type: string
-                            example: testUser
-                          iat:
-                            type: integer
-                            example: 1768386243
-                          exp:
-                            type: integer
-                            example: 1768389843
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+    /auth/me:
+        get:
+            tags:
+                - Authentication
+            summary: Get current user
+            description: Get the currently authenticated user's information
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Current user data
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: object
+                                              properties:
+                                                  id:
+                                                      type: integer
+                                                      example: 1,
+                                                  email:
+                                                      type: string/users
+                                                      example: testUser@gmail.com
+                                                  username:
+                                                      type: string
+                                                      example: testUser
+                                                  iat:
+                                                      type: integer
+                                                      example: 1768386243
+                                                  exp:
+                                                      type: integer
+                                                      example: 1768389843
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /users:
-    get:
-      tags:
-        - Users
-      summary: Get all users
-      description: Retrieve a list of all registered users
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: List of users
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/User"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+    /users:
+        get:
+            tags:
+                - Users
+            summary: Get all users
+            description: Retrieve a list of all registered users
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: List of users
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/User'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /users/{id}/posts:
-    get:
-      tags:
-        - Users
-      summary: Get user's posts
-      description: Retrieve all posts created by a specific user
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: User ID
-          schema:
-            type: integer
-        - name: includeComments
-          in: query
-          required: false
-          description: Include comments for each post
-          schema:
-            type: string
-            enum: ["true", "false"]
-      responses:
-        "200":
-          description: List of user's posts
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/PostWithComments"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                status: 404
-                success: false
-                message: User not found!
+    /users/{id}/posts:
+        get:
+            tags:
+                - Users
+            summary: Get user's posts
+            description: Retrieve all posts created by a specific user
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: User ID
+                  schema:
+                      type: integer
+                - name: includeComments
+                  in: query
+                  required: false
+                  description: Include comments for each post
+                  schema:
+                      type: string
+                      enum: ['true', 'false']
+            responses:
+                '200':
+                    description: List of user's posts
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/PostWithComments'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    description: User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                status: 404
+                                success: false
+                                message: User not found!
 
-  /users/profile:
-    get:
-      tags:
-        - User Profile
-      summary: Get current user's profile
-      description: Retrieve the profile of the currently authenticated user
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: User profile
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/UserProfile"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+    /users/profile:
+        get:
+            tags:
+                - User Profile
+            summary: Get current user's profile
+            description: Retrieve the profile of the currently authenticated user
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: User profile
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-    patch:
-      tags:
-        - User Profile
-      summary: Update current user's profile
-      description: Update the profile of the currently authenticated user (at least one field required)
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateUserProfileRequest"
-            examples:
-              fullUpdate:
-                summary: Update all fields
-                value:
-                  firstName: "John"
-                  lastName: "Doe"
-                  bio: "An updated example of bio"
-                  description: "An updated example of updated description"
-              oldValues:
-                summary: Update to old values
-                value:
-                  firstName: "Test"
-                  lastName: "User"
-                  bio: "A test example of bio"
-                  description: "A test example of description. This is a test description."
+        patch:
+            tags:
+                - User Profile
+            summary: Update current user's profile
+            description: Update the profile of the currently authenticated user (at least one field required)
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUserProfileRequest'
+                        examples:
+                            fullUpdate:
+                                summary: Update all fields
+                                value:
+                                    firstName: 'John'
+                                    lastName: 'Doe'
+                                    bio: 'An updated example of bio'
+                                    description: 'An updated example of updated description'
+                            oldValues:
+                                summary: Update to old values
+                                value:
+                                    firstName: 'Test'
+                                    lastName: 'User'
+                                    bio: 'A test example of bio'
+                                    description: 'A test example of description. This is a test description.'
 
-      responses:
-        "201":
-          description: Profile updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      data:
-                        $ref: "#/components/schemas/UserProfile"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+            responses:
+                '201':
+                    description: Profile updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /users/{id}/profile:
-    get:
-      tags:
-        - User Profile
-      summary: Get user profile by ID
-      description: Retrieve the profile of a specific user by their ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: User ID
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: User profile
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        $ref: "#/components/schemas/UserProfile"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                status: 404
-                success: false
-                message: User not found!
+    /users/{id}/profile:
+        get:
+            tags:
+                - User Profile
+            summary: Get user profile by ID
+            description: Retrieve the profile of a specific user by their ID
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: User ID
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: User profile
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              $ref: '#/components/schemas/UserProfile'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    description: User not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                status: 404
+                                success: false
+                                message: User not found!
 
-  /users/profile/avatar: # Ot tuk nadolu trqbva da se testva s ui
-    put:
-      tags:
-        - User Profile
-      summary: Upload avatar image
-      description: Upload a new avatar image for the current user
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - image
-              properties:
-                image:
-                  type: string
-                  format: binary
-                  description: Image file to upload
-      responses:
-        "200":
-          description: Avatar uploaded successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        type: integer
-                        example: 200
-                      message:
-                        type: string
-                        example: "Avatar uploaded successfully"
-                      data:
-                        type: object
-                        properties:
-                          avatarUrl:
-                            type: string
-                            example: "https://res.cloudinary.com/demo/image/upload/v1/app/user/avatar/example123.jpg"
-        "400":
-          description: Wrong file format
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              example:
-                status: 400
-                success: false
-                message: "Wrong file format! You can upload only images!"
+    /users/profile/avatar: # Ot tuk nadolu trqbva da se testva s ui
+        put:
+            tags:
+                - User Profile
+            summary: Upload avatar image
+            description: Upload a new avatar image for the current user
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - image
+                            properties:
+                                image:
+                                    type: string
+                                    format: binary
+                                    description: Image file to upload
+            responses:
+                '200':
+                    description: Avatar uploaded successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              type: integer
+                                              example: 200
+                                          message:
+                                              type: string
+                                              example: 'Avatar uploaded successfully'
+                                          data:
+                                              type: object
+                                              properties:
+                                                  avatarUrl:
+                                                      type: string
+                                                      example: 'https://res.cloudinary.com/demo/image/upload/v1/app/user/avatar/example123.jpg'
+                '400':
+                    description: Wrong file format
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            example:
+                                status: 400
+                                success: false
+                                message: 'Wrong file format! You can upload only images!'
 
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-    delete:
-      tags:
-        - User Profile
-      summary: Delete avatar image
-      description: Remove the avatar image for the current user
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Avatar deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        type: integer
-                        example: 200
-                      message:
-                        type: string
-                        example: "Avatar removed successfully"
-                      data:
-                        type: object
-                        properties:
-                          avatarUrl:
-                            type: string
-                            example: "https://api.dicebear.com/9.x/notionists/svg?seed=1"
+        delete:
+            tags:
+                - User Profile
+            summary: Delete avatar image
+            description: Remove the avatar image for the current user
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Avatar deleted successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              type: integer
+                                              example: 200
+                                          message:
+                                              type: string
+                                              example: 'Avatar removed successfully'
+                                          data:
+                                              type: object
+                                              properties:
+                                                  avatarUrl:
+                                                      type: string
+                                                      example: 'https://api.dicebear.com/9.x/notionists/svg?seed=1'
 
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /users/profile/cover:
-    put:
-      tags:
-        - User Profile
-      summary: Upload cover image
-      description: Upload a new cover image for the current user with optional crop coordinates
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - image
-              properties:
-                image:
-                  type: string
-                  format: binary
-                  description: Image file to upload
-                croppedAreaPixels:
-                  type: string
-                  description: JSON string containing crop coordinates
-                  example: '{"x":0,"y":0,"width":800,"height":400}'
-      responses:
-        "200":
-          description: Cover uploaded successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 200
-                      message:
-                        example: "Cover uploaded successfully"
-                      data:
-                        type: object
-                        properties:
-                          coverUrl:
-                            type: string
-                            example: "https://res.cloudinary.com/demo/image/upload/c_crop,h_400,w_800,x_0,y_0/v1/app/user/cover/example123.jpg"
+    /users/profile/cover:
+        put:
+            tags:
+                - User Profile
+            summary: Upload cover image
+            description: Upload a new cover image for the current user with optional crop coordinates
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            required:
+                                - image
+                            properties:
+                                image:
+                                    type: string
+                                    format: binary
+                                    description: Image file to upload
+                                croppedAreaPixels:
+                                    type: string
+                                    description: JSON string containing crop coordinates
+                                    example: '{"x":0,"y":0,"width":800,"height":400}'
+            responses:
+                '200':
+                    description: Cover uploaded successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 200
+                                          message:
+                                              example: 'Cover uploaded successfully'
+                                          data:
+                                              type: object
+                                              properties:
+                                                  coverUrl:
+                                                      type: string
+                                                      example: 'https://res.cloudinary.com/demo/image/upload/c_crop,h_400,w_800,x_0,y_0/v1/app/user/cover/example123.jpg'
 
-        "400":
-          description: Invalid file or crop coordinates
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/ErrorResponse"
-                  - $ref: "#/components/schemas/ValidationErrorResponse"
-              examples:
-                wrongFileFormat:
-                  summary: Wrong file format
-                  value:
-                    status: 400
-                    success: false
-                    message: "Wrong file format! You can upload only images!"
-                invalidCropCoordinates:
-                  summary: Invalid crop coordinates
-                  value:
-                    status: 400
-                    success: false
-                    message: "Validation Error"
-                    errors:
-                      croppedAreaPixels:
-                        - "Invalid crop coordinates"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+                '400':
+                    description: Invalid file or crop coordinates
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - $ref: '#/components/schemas/ErrorResponse'
+                                    - $ref: '#/components/schemas/ValidationErrorResponse'
+                            examples:
+                                wrongFileFormat:
+                                    summary: Wrong file format
+                                    value:
+                                        status: 400
+                                        success: false
+                                        message: 'Wrong file format! You can upload only images!'
+                                invalidCropCoordinates:
+                                    summary: Invalid crop coordinates
+                                    value:
+                                        status: 400
+                                        success: false
+                                        message: 'Validation Error'
+                                        errors:
+                                            croppedAreaPixels:
+                                                - 'Invalid crop coordinates'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-    delete:
-      tags:
-        - User Profile
-      summary: Delete cover image
-      description: Remove the cover image for the current user
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Avatar deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        type: integer
-                        example: 200
-                      message:
-                        type: string
-                        example: "Cover removed successfully"
-                      data:
-                        type: object
-                        properties:
-                          coverUrl:
-                            type: string
-                            example: "https://example.com/images/cover.jpg"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+        delete:
+            tags:
+                - User Profile
+            summary: Delete cover image
+            description: Remove the cover image for the current user
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: Avatar deleted successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              type: integer
+                                              example: 200
+                                          message:
+                                              type: string
+                                              example: 'Cover removed successfully'
+                                          data:
+                                              type: object
+                                              properties:
+                                                  coverUrl:
+                                                      type: string
+                                                      example: 'https://example.com/images/cover.jpg'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /posts:
-    get:
-      tags:
-        - Posts
-      summary: Get all posts
-      description: Retrieve all posts. Authentication is optional - user data is added if authenticated.
-      security:
-        - bearerAuth: []
-        - {}
-      responses:
-        "200":
-          description: List of posts
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/PostList"
+    /posts:
+        get:
+            tags:
+                - Posts
+            summary: Get all posts
+            description: Retrieve all posts. Authentication is optional - user data is added if authenticated.
+            security:
+                - bearerAuth: []
+                - {}
+            responses:
+                '200':
+                    description: List of posts
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/PostList'
 
-    post:
-      tags:
-        - Posts
-      summary: Create a new post
-      description: Create a new post for the authenticated user
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreatePostRequest"
-      responses:
-        "201":
-          description: Post created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      message:
-                        example: "Successfully created post!"
-                      data:
-                        $ref: "#/components/schemas/CreatePostResponse"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+        post:
+            tags:
+                - Posts
+            summary: Create a new post
+            description: Create a new post for the authenticated user
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreatePostRequest'
+            responses:
+                '201':
+                    description: Post created successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          message:
+                                              example: 'Successfully created post!'
+                                          data:
+                                              $ref: '#/components/schemas/CreatePostResponse'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /posts/with-comments:
-    get:
-      tags:
-        - Posts
-      summary: Get all posts with comments
-      description: Retrieve all posts with their comments
-      responses:
-        "200":
-          description: List of posts with comments
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/PostWithComments"
+    /posts/with-comments:
+        get:
+            tags:
+                - Posts
+            summary: Get all posts with comments
+            description: Retrieve all posts with their comments
+            responses:
+                '200':
+                    description: List of posts with comments
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/PostWithComments'
 
-  /posts/{id}:
-    get:
-      tags:
-        - Posts
-      summary: Get a post by ID
-      description: Retrieve a specific post by its ID with optional comments
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-        - name: includeComments
-          in: query
-          required: false
-          description: Include comments for the post
-          schema:
-            type: string
-            enum: ["true", "false"]
-      responses:
-        "200":
-          description: Post details
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      data:
-                        oneOf:
-                          - $ref: "#/components/schemas/PostWithComments"
-                          - $ref: "#/components/schemas/PostList"
-              examples:
-                withoutComments:
-                  $ref: "#/components/examples/GetPostByIdWithoutCommentsExample"
-                withComments:
-                  $ref: "#/components/examples/GetPostByIdWithCommentsExample"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+    /posts/{id}:
+        get:
+            tags:
+                - Posts
+            summary: Get a post by ID
+            description: Retrieve a specific post by its ID with optional comments
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+                - name: includeComments
+                  in: query
+                  required: false
+                  description: Include comments for the post
+                  schema:
+                      type: string
+                      enum: ['true', 'false']
+            responses:
+                '200':
+                    description: Post details
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          data:
+                                              oneOf:
+                                                  - $ref: '#/components/schemas/PostWithComments'
+                                                  - $ref: '#/components/schemas/PostList'
+                            examples:
+                                withoutComments:
+                                    $ref: '#/components/examples/GetPostByIdWithoutCommentsExample'
+                                withComments:
+                                    $ref: '#/components/examples/GetPostByIdWithCommentsExample'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-    patch:
-      tags:
-        - Posts
-      summary: Update a post
-      description: Update a post by ID (at least one field required, user must be the owner)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdatePostRequest"
-      responses:
-        "200":
-          description: Post updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 200
-                      message:
-                        example: "Successfully updated post!"
-                      data:
-                        $ref: "#/components/schemas/CreatePostResponse"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "403":
-          $ref: "#components/responses/ForbiddenResourceError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+        patch:
+            tags:
+                - Posts
+            summary: Update a post
+            description: Update a post by ID (at least one field required, user must be the owner)
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdatePostRequest'
+            responses:
+                '200':
+                    description: Post updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 200
+                                          message:
+                                              example: 'Successfully updated post!'
+                                          data:
+                                              $ref: '#/components/schemas/CreatePostResponse'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#components/responses/ForbiddenResourceError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-    delete:
-      tags:
-        - Posts
-      summary: Delete a post
-      description: Delete a post by ID (user must be the owner)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      responses:
-        "201":
-          description: Post deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      message:
-                        example: "Successfully deleted post!"
-                      data:
-                        $ref: "#/components/schemas/CreatePostResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "403":
-          $ref: "#components/responses/ForbiddenResourceError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+        delete:
+            tags:
+                - Posts
+            summary: Delete a post
+            description: Delete a post by ID (user must be the owner)
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            responses:
+                '201':
+                    description: Post deleted successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          message:
+                                              example: 'Successfully deleted post!'
+                                          data:
+                                              $ref: '#/components/schemas/CreatePostResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#components/responses/ForbiddenResourceError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-  /posts/{id}/comments:
-    get:
-      tags:
-        - Comments
-      summary: Get comments for a post
-      description: Retrieve all comments for a specific post
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: List of comments
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 200
-                      message:
-                        example: null
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/Comment"
+    /posts/{id}/comments:
+        get:
+            tags:
+                - Comments
+            summary: Get comments for a post
+            description: Retrieve all comments for a specific post
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: List of comments
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 200
+                                          message:
+                                              example: null
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/Comment'
 
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-    post:
-      tags:
-        - Comments
-      summary: Create a comment
-      description: Create a new comment on a post
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreateCommentRequest"
-      responses:
-        "201":
-          description: Comment created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      message:
-                        example: "Successfully added comment!"
-                      data:
-                        $ref: "#/components/schemas/CommentWithoutUser"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+        post:
+            tags:
+                - Comments
+            summary: Create a comment
+            description: Create a new comment on a post
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateCommentRequest'
+            responses:
+                '201':
+                    description: Comment created successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          message:
+                                              example: 'Successfully added comment!'
+                                          data:
+                                              $ref: '#/components/schemas/CommentWithoutUser'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-  /posts/{id}/comments/{commentId}:
-    patch:
-      tags:
-        - Comments
-      summary: Update a comment
-      description: Update a comment (user must be the owner)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-        - name: commentId
-          in: path
-          required: true
-          description: Comment ID
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdateCommentRequest"
-      responses:
-        "201":
-          description: Comment updated successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      message:
-                        example: "Successfully updated comment!"
-                      data:
-                        $ref: "#/components/schemas/CommentWithoutUser"
-        "400":
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ValidationErrorResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "403":
-          $ref: "#components/responses/ForbiddenResourceError"
-        "404":
-          description: Post or Comment not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                postNotFound:
-                  $ref: "#/components/examples/PostNotFoundExample"
-                commentNotFound:
-                  $ref: "#/components/examples/CommentNotFoundExample"
+    /posts/{id}/comments/{commentId}:
+        patch:
+            tags:
+                - Comments
+            summary: Update a comment
+            description: Update a comment (user must be the owner)
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+                - name: commentId
+                  in: path
+                  required: true
+                  description: Comment ID
+                  schema:
+                      type: integer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateCommentRequest'
+            responses:
+                '201':
+                    description: Comment updated successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          message:
+                                              example: 'Successfully updated comment!'
+                                          data:
+                                              $ref: '#/components/schemas/CommentWithoutUser'
+                '400':
+                    description: Validation error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ValidationErrorResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#components/responses/ForbiddenResourceError'
+                '404':
+                    description: Post or Comment not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                postNotFound:
+                                    $ref: '#/components/examples/PostNotFoundExample'
+                                commentNotFound:
+                                    $ref: '#/components/examples/CommentNotFoundExample'
 
-    delete:
-      tags:
-        - Comments
-      summary: Delete a comment
-      description: Delete a comment (user must be the owner)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-        - name: commentId
-          in: path
-          required: true
-          description: Comment ID
-          schema:
-            type: integer
-      responses:
-        "201":
-          description: Comment deleted successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 201
-                      message:
-                        example: "Successfully deleted comment!"
-                      data:
-                        $ref: "#/components/schemas/CommentWithoutUser"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "403":
-          $ref: "#components/responses/ForbiddenResourceError"
-        "404":
-          description: Post or Comment not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-              examples:
-                postNotFound:
-                  $ref: "#/components/examples/PostNotFoundExample"
-                commentNotFound:
-                  $ref: "#/components/examples/CommentNotFoundExample"
+        delete:
+            tags:
+                - Comments
+            summary: Delete a comment
+            description: Delete a comment (user must be the owner)
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+                - name: commentId
+                  in: path
+                  required: true
+                  description: Comment ID
+                  schema:
+                      type: integer
+            responses:
+                '201':
+                    description: Comment deleted successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 201
+                                          message:
+                                              example: 'Successfully deleted comment!'
+                                          data:
+                                              $ref: '#/components/schemas/CommentWithoutUser'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '403':
+                    $ref: '#components/responses/ForbiddenResourceError'
+                '404':
+                    description: Post or Comment not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                            examples:
+                                postNotFound:
+                                    $ref: '#/components/examples/PostNotFoundExample'
+                                commentNotFound:
+                                    $ref: '#/components/examples/CommentNotFoundExample'
 
-  /comments:
-    get:
-      tags:
-        - Comments
-      summary: Get all comments
-      description: Retrieve all comments system-wide
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: List of all comments
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status:
-                        example: 200
-                      message:
-                        example: null
-                      data:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/CommentWithoutUser"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
+    /comments:
+        get:
+            tags:
+                - Comments
+            summary: Get all comments
+            description: Retrieve all comments system-wide
+            security:
+                - bearerAuth: []
+            responses:
+                '200':
+                    description: List of all comments
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 200
+                                          message:
+                                              example: null
+                                          data:
+                                              type: array
+                                              items:
+                                                  $ref: '#/components/schemas/CommentWithoutUser'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
 
-  /posts/{id}/likes:
-    post:
-      tags:
-        - Likes
-      summary: Toggle like on a post
-      description: Like a post if not already liked, or unlike if already liked
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      responses:
-        "201":
-          description: Like toggled successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-              examples:
-                liked:
-                  summary: Liked Response
-                  value:
-                    status: 201
-                    message: 'Successfully liked post!'
-                    data:
-                      action: liked
-                      userId: 1
-                      postId: 1
-                unliked:
-                  summary: Unliked Response
-                  value:
-                    status: 201
-                    message: 'Successfully unliked post!'
-                    data:
-                      action: unliked
-                      userId: 1
-                      postId: 1
+    /posts/{id}/likes:
+        post:
+            tags:
+                - Likes
+            summary: Toggle like on a post
+            description: Like a post if not already liked, or unlike if already liked
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            responses:
+                '201':
+                    description: Like toggled successfully
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                            examples:
+                                liked:
+                                    summary: Liked Response
+                                    value:
+                                        status: 201
+                                        message: 'Successfully liked post!'
+                                        data:
+                                            action: liked
+                                            userId: 1
+                                            postId: 1
+                                unliked:
+                                    summary: Unliked Response
+                                    value:
+                                        status: 201
+                                        message: 'Successfully unliked post!'
+                                        data:
+                                            action: unliked
+                                            userId: 1
+                                            postId: 1
 
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
 
-    get:
-      tags:
-        - Likes
-      summary: Get likes count for a post
-      description: Get the total number of likes for a specific post
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Post ID
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Likes count
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/SuccessResponse"
-                  - type: object
-                    properties:
-                      status: 
-                        example: 200
-                      message: 
-                        example: null
-                      data:
-                        $ref: "#/components/schemas/LikesCountResponse"
-        "401":
-          $ref: "#components/responses/UnauthorizedError"
-        "404":
-          $ref: "#components/responses/PostNotFoundError"
+        get:
+            tags:
+                - Likes
+            summary: Get likes count for a post
+            description: Get the total number of likes for a specific post
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  description: Post ID
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: Likes count
+                    content:
+                        application/json:
+                            schema:
+                                allOf:
+                                    - $ref: '#/components/schemas/SuccessResponse'
+                                    - type: object
+                                      properties:
+                                          status:
+                                              example: 200
+                                          message:
+                                              example: null
+                                          data:
+                                              $ref: '#/components/schemas/LikesCountResponse'
+                '401':
+                    $ref: '#components/responses/UnauthorizedError'
+                '404':
+                    $ref: '#components/responses/PostNotFoundError'
