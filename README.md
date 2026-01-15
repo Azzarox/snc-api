@@ -70,7 +70,10 @@ Your API will be available at `http://localhost:{PORT}/v1`.
 
 ---
 
-## Project Structure
+## Documentation
+
+<details>
+<summary><strong>Project Structure</strong></summary>
 
 ```
 ├─ /src
@@ -106,9 +109,33 @@ Your API will be available at `http://localhost:{PORT}/v1`.
 ├─ .env.example             # Example environment variables
 ├─ docker-compose.yml       # Docker services configuration
 ├─ Dockerfile               # Application containerization
-├─ knexfile.ts             # Knex configuration
+├─ Dockerfile.prod          # Production containerization
+├─ knexfile.ts              # Knex configuration
+├─ swagger.yml              # API documentation (OpenAPI)
 └─ README.md
 ```
+
+</details>
+
+<details>
+<summary><strong>Architecture & Database Schema</strong></summary>
+
+### System Architecture
+
+```mermaid
+flowchart LR
+    Client([Client]) --> Router[Router]
+    Router --> Controller[Controller]
+    Controller --> Service[Service]
+    Service --> Repository[Repository]
+    Repository --> DB[(PostgreSQL)]
+```
+
+### Database Schema
+
+![Database ERD](docs/erd-diagram.png)
+
+</details>
 
 ---
 

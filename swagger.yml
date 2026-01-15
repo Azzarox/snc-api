@@ -9,6 +9,21 @@ info:
     ```
     Authorization: Bearer <your_jwt_token>
     ```
+
+    ## Rate Limiting
+    All API endpoints are rate limited to **100 requests per minute** per IP address.
+
+    The following headers are included in every response:
+    | Header | Description |
+    |--------|-------------|
+    | `X-RateLimit-Limit` | Maximum requests allowed per window (100) |
+    | `X-RateLimit-Remaining` | Remaining requests in current window |
+    | `X-RateLimit-Reset` | Unix timestamp when the rate limit resets |
+
+    When the limit is exceeded, a `429 Too Many Requests` response is returned with the message: "Too many requests, please try again later."
+
+    ## Compression
+    All API responses are compressed using **gzip** when the client sends the `Accept-Encoding: gzip` header. This significantly reduces response payload sizes.
   version: 1.0.0
   contact:
     name: StringHub API Support
