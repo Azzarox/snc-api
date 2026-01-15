@@ -10,7 +10,7 @@ const router = new Router({
 	prefix: '/v1',
 });
 router.get('/ping', (ctx) => {
-	ctx.status = 200
+	ctx.status = 200;
 	ctx.body = {
 		status: ctx.status,
 		message: 'success',

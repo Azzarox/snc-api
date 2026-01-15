@@ -9,7 +9,7 @@ import koaPinoLogger from 'koa-pino-logger';
 import loggerConfig from './config/loggerConfig';
 import { envConfig } from '../config/envConfig';
 import cors from '@koa/cors';
-import compress from 'koa-compress'
+import compress from 'koa-compress';
 import { rateLimitMiddleware } from './middlewares/rateLimitMiddleware';
 
 const app = new Koa();
@@ -33,10 +33,12 @@ app.use(
 		}),
 	})
 );
-app.use(cors({
-	origin: envConfig.FRONTEND_CORS_ORIGIN,
-	credentials: true,
-}));
+app.use(
+	cors({
+		origin: envConfig.FRONTEND_CORS_ORIGIN,
+		credentials: true,
+	})
+);
 app.use(rateLimitMiddleware);
 
 app.use(json());

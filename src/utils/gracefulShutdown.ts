@@ -2,11 +2,7 @@ import { Server } from 'http';
 import { Knex } from 'knex';
 import { Logger } from 'pino';
 
-export const setupGracefulShutdown = (
-	server: Server,
-	db: Knex,
-	logger: Logger
-) => {
+export const setupGracefulShutdown = (server: Server, db: Knex, logger: Logger) => {
 	const shutdown = async (signal: string) => {
 		logger.info(`${signal} received, shutting down...`);
 		server.close();

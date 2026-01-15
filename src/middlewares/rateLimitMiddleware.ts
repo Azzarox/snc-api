@@ -7,8 +7,8 @@ const db = new Map();
 export const rateLimitMiddleware = ratelimit({
 	driver: 'memory',
 	db: db,
-	duration: 60000, 				// 1 minute window
-	max: 100, 						// 100 requests per minute per IP
+	duration: 60000, // 1 minute window
+	max: 100, // 100 requests per minute per IP
 	errorMessage: 'Too many requests, please try again later.',
 	id: (ctx) => ctx.ip,
 	headers: {
