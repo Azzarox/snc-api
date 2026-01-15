@@ -23,11 +23,14 @@ describe('userProfileService', () => {
 
 	describe('getUserProfile', () => {
 		it('should get the user profile', async () => {
+			const user = { id: userId } as UserEntity;
 			const profile = { id: profileId } as EnrichedUserProfile;
+			jest.spyOn(usersRepository, 'findOneBy').mockResolvedValue(user);
 			jest.spyOn(repository, 'getUserProfile').mockResolvedValue(profile);
 			const result = await service.getUserProfile(userId);
 			expect(result).toEqual(profile);
-			expect(repository.getUserProfile).toHaveBeenCalledWith(1);
+			expect(usersRepository.findOneBy).toHaveBeenCalledWith({ id: userId });
+			expect(repository.getUserProfile).toHaveBeenCalledWith(userId);
 		});
 	});
 

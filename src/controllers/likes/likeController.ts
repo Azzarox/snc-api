@@ -6,7 +6,11 @@ import { LikeResponse, likeService } from '../../services/likes/likeService';
 
 const toggleLike = async (ctx: ValidatedContext<never, GenericParams>) => {
 	const like: LikeResponse = await likeService.toggleLike(ctx.state.user.id, ctx.params.id);
-	const response = new SuccessResponse(StatusCodes.CREATED, `Successfully ${like.action === 'liked' ? 'liked' : 'unliked'} post!`, like);
+	const response = new SuccessResponse(
+		StatusCodes.CREATED,
+		`Successfully ${like.action === 'liked' ? 'liked' : 'unliked'} post!`,
+		like
+	);
 	ctx.status = response.status;
 	ctx.body = response;
 };

@@ -19,7 +19,8 @@
 		"migrations": "knex migrate:latest",
 		"migrations:prod": "knex --knexfile ./dist/knexConfig.js migrate:latest",
 		"seeds:make": "knex seed:make -x ts --timestamp-filename-prefix",
-		"seeds": "knex seed:run"
+		"seeds": "knex seed:run",
+		"prepare": "husky"
 	},
 	"dependencies": {
 		"@koa/bodyparser": "^6.0.0",
@@ -47,6 +48,9 @@
 		"yamljs": "^0.3.0",
 		"zod": "^4.1.12"
 	},
+	"lint-staged": {
+		"*.{ts,js,json,yml,md}": "prettier --write"
+	},
 	"devDependencies": {
 		"@eslint/js": "^9.37.0",
 		"@types/dotenv": "^6.1.1",
@@ -67,9 +71,11 @@
 		"eslint-plugin-prettier": "^5.5.4",
 		"eslint-plugin-unused-imports": "^4.2.0",
 		"globals": "^16.4.0",
+		"husky": "^9.1.7",
 		"jest": "^30.2.0",
 		"jiti": "^2.6.1",
 		"knex-stringcase": "^1.5.5",
+		"lint-staged": "^15.5.2",
 		"nodemon": "^3.1.10",
 		"prettier": "^3.6.2",
 		"ts-jest": "^29.4.5",
