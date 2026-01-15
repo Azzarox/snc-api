@@ -229,6 +229,7 @@ This project uses GitHub Actions for continuous integration. The pipeline runs o
 ## API Endpoints
 
 Base URL: `/v1`
+Docs: `/v1/docs`
 
 ### Authentication
 
