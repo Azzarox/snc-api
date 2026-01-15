@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { envConfig } from './envConfig';
 import knexStringcase from 'knex-stringcase';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const options = {
 	client: 'pg',
