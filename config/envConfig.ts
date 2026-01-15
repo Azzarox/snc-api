@@ -3,7 +3,7 @@ import z from 'zod';
 
 const envPath = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
 
-dotenv.config({ path: envPath , quiet: true });
+dotenv.config({ path: envPath, quiet: true });
 
 const envSchema = z.object({
 	PORT: z.string().min(4, '.env variable PORT is required and must have atleast 4 digits'),
